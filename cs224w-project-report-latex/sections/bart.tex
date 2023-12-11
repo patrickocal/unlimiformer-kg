@@ -1,0 +1,45 @@
+\subsection*{BART}
+**How do we use BART for training?**
+
+**Work to train models individually.**
+\subsubsection{Background on BART}
+BART, like other transformer-based models, is considered adept at handling structured inputs due to several key features of its architecture and design.
+
+**Structured Inputs
+
+Structured inputs refer to data that is organized in a predictable, often hierarchical manner, with clear relationships between different parts. This contrasts with unstructured data, like free-form text, where the organization and relationships are not as explicitly defined. Examples of structured inputs include:
+
+- Databases or tables where data is organized in rows and columns.
+- XML or JSON data, where elements are nested and have defined relationships.
+- Knowledge graphs, where information is represented as entities and relationships (triples).
+
+**Why BART Handles Structured Inputs Well**
+
+1. **Self-Attention Mechanism**: BART's transformer architecture uses a self-attention mechanism, which allows it to consider the entire input sequence at once. This enables the model to understand relationships between different parts of the input, essential for structured data.
+
+2. **Contextual Understanding**: BART can capture context from both left and right of each token in the input sequence. This bi-directional context is crucial for understanding structured inputs, where the meaning often depends on the surrounding elements.
+
+3. **Layered Encoding**: The layered structure of transformers enables them to capture and encode different levels of abstraction, which is beneficial for understanding hierarchical and nested structures in the input.
+
+4. **Pre-training on Diverse Data**: BART is pre-trained on a wide range of data, including structured formats. This pre-training helps it to learn patterns and structures that are common in various types of data.
+
+5. **Flexibility in Input Representation**: BART can handle sequences with special tokens and delimiters, allowing it to adapt to different types of structured inputs. For example, it can process inputs where parts of the data are segmented or highlighted using special tokens.
+
+6. **Adaptability to Task-Specific Structures**: With fine-tuning, BART can adapt to specific types of structured inputs relevant to a particular task, enhancing its ability to process and generate meaningful outputs based on that structure.
+
+In summary, BART's ability to process and understand the entire input sequence contextually, along with its adaptability and pre-training on diverse data, makes it well-suited for handling structured inputs. This capability allows it to effectively process and generate outputs based on inputs like knowledge graphs, tables, or other structured data forms.
+We chose to use the beginning of sequence (BOS, `<s>`) and end of sequence (EOS, `</s>`) tokens to separate triples in our knowledge graphs (KGs) with the intent of aligning BART's understanding of sequence boundaries, this approach has specific implications:
+
+1. **Clear Segmentation of Information**: Using BOS and EOS tokens to delimit triples in the KG makes each triple a distinct segment from the model's perspective. This is beneficial since we want the model to treat each triple as an independent unit of information since we expect our GovReport KGs to be such that the relationships within triples contain key information.
+
+2. **Facilitating Attention Across Segments**: This segmentation should help the model's attention mechanism focus on each triple individually, potentially enhancing the model's ability to capture the nuances of each relationship within the KG.
+
+3. **Model Adaptation to Structured Inputs**: Given that BART is designed to handle structured text, using BOS and EOS tokens in this way could aid the model in better understanding and generating summaries based on the structured nature of KGs. It aligns with the model's pre-existing mechanisms for processing text.
+
+4. **Potential for Contextual Integration**: While each triple is treated as a separate sequence, the overall structure still allows the model to integrate these segments contextually. The model can learn to understand the KG as a whole, even though it processes each triple individually.
+
+5. **Efficient Processing of Smaller Units**: By breaking down the KG into smaller segments, the model might process each unit more efficiently, especially if the triples are concise and the relationships within them are straightforward.
+
+In this context, the slower training times you observed might not be due to the tokenization strategy per se but could involve other factors such as the complexity of the relationships in the KGs, the adaptation of the model to this unique structuring of inputs, or other computational aspects related to how the BART model processes these inputs.
+
+Your approach aligns with the design principles of transformer models like BART, which are adept at handling structured inputs. The key would be to ensure that the rest of your training pipeline, including data preprocessing and model fine-tuning, is optimized to leverage this structure effectively.

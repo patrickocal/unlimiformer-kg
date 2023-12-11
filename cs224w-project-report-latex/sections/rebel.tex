@@ -1,0 +1,8 @@
+\subsection*{REBEL}
+We chose REBEL because it is end-to-end (it finds entities and relations at the same time), open-source, and easy to implement using Hugging Face. Also, according to the DocRED paper by Yao et al \cite{yao2019DocRED}, pretrained REBEL yields the best joint entity and relation extraction (NER and RE) result compared with the benchmark among all models sampled, with a relation F1 score of 47.1\footnote{https://paperswithcode.com/sota/joint-entity-and-relation-extraction-on-3}.
+
+Since the pre-trained REBEL model has a token limit, we chose to split the LD into 128-token chunks before extracting head-relation-tail triplets from each chunk. Next, we used NetworkX to assemble the triplets and form a directed KG. The code for our REBEL implementation can be found here\footnote{https://github.com/patrickocal/unlimiformer/blob/main/rebel.py}.
+
+**Why 128 span length?**
+
+**Why extract triplets (and not extract triplets typed)?**

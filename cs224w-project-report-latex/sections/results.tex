@@ -1,0 +1,23 @@
+**How did our model perform compared to the baseline? Explanation?**
+
+**Why is the average summary 800 words and not 500 words?**
+
+Interpreting the performance differences between models trained on long documents (LD) and knowledge graphs (KG) based on the  provided metrics involves considering what each metric measures and how that relates to the nature of the inputs:
+
+1. **ROUGE Scores**:
+   - **ROUGE-1 (LD: 23, KG: 40)**: This measures the overlap of unigrams (individual words) between the generated summary and the reference summary. The substantially higher score for KG suggests that the KG-based model is better at capturing key content words. This could be because KGs, being structured and concise, might enable the model to focus on essential terms more effectively.
+   - **ROUGE-2 (LD: 11.74, KG: 11.47)**: This metric evaluates bigram overlap, indicating how well the model captures phrases and specific content. The similar scores suggest that both models are nearly equally effective at capturing phrase-level information, though the LD model has a slight edge.
+   - **ROUGE-L (LD: 14.7, KG: 17.7)**: ROUGE-L assesses the longest common subsequence, which reflects sentence-level structure and coherence. The higher score for KG indicates better preservation of sentence structure or flow from the KG inputs.
+
+2. **BERTScore**:
+   - **Precision (LD: 0.69, KG: 0.58)**: Precision measures how much of the content in the generated summary is relevant or present in the reference summary. The higher precision for LD implies that it might be better at generating content closely aligned with the reference, likely due to the richer context provided by the long document.
+   - **Recall (LD: 0.52, KG: 0.57)**: Recall assesses how much of the reference summary is captured in the generated summary. The higher recall for KG suggests it is better at including essential points from the reference summary, possibly due to the distilled and focused nature of KGs.
+   - **F1/Aggregated BERTScore (LD: 0.59, KG: 0.57)**: This balanced metric considers both precision and recall. The scores are quite close, indicating that overall, both models are similarly effective in terms of content relevance and coverage, though the LD model has a marginal advantage.
+
+Given these results after 8000 training steps:
+
+- The KG-based model excels in capturing key content words and maintaining sentence structure, likely due to the concise and structured nature of KGs. 
+- The LD-based model, despite its lower performance in some ROUGE metrics, achieves higher precision in BERTScore, suggesting its strength in generating summaries that are more aligned with the content and style of the reference summaries. This might be due to the rich, contextual information available in long documents.
+- The marginal differences in ROUGE-2 and BERTScore/F1 indicate that both models have their strengths and weaknesses. The LD model seems to be better for generating precise content, while the KG model is more effective in covering essential information and maintaining structure.
+
+In conclusion, each model has its advantages depending on the desired outcome of the summary: whether the focus is on precise content alignment (LD) or on covering key points and maintaining structure (KG). Continued training and further optimization could enhance the performance of both models, potentially narrowing these gaps.

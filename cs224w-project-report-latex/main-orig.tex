@@ -1,0 +1,127 @@
+\documentclass[12pt]{article}
+%\linespread{1.6}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabu}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+%\usepackage{neurips_2019}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{url}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\graphicspath{{images/}}
+\usepackage{indentfirst}
+\usepackage{lipsum}
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage{setspace}
+\usepackage[
+backend=biber,
+style=alphabetic,
+sorting=ynt
+]{biblatex}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, positioning, fit, arrows.meta}
+
+%-----------some colors
+\newcommand{\standardcolor}{blue}
+\newcommand{\unlimicolor}{red}
+\newcommand{\combcolor}{green}
+
+\tikzstyle{startstop} = [rectangle, rounded corners, 
+minimum width=3cm, 
+minimum height=1cm,
+text centered, 
+draw=black, 
+fill=\standardcolor!30]
+
+\tikzstyle{combFn} = [trapezium, 
+trapezium stretches=true, % A later addition
+trapezium left angle=70, 
+trapezium right angle=110, 
+minimum width=3cm, 
+minimum height=1cm, text centered, 
+draw=black, fill=\combcolor!50,
+rounded corners]
+
+\tikzstyle{unlimiFn} = [trapezium, 
+trapezium stretches=true, % A later addition
+trapezium left angle=70, 
+trapezium right angle=110, 
+minimum width=3cm, 
+minimum height=1cm, text centered, 
+draw=black, fill=\unlimicolor!50,
+rounded corners]
+
+\tikzstyle{standardFn} = [trapezium, 
+trapezium stretches=true, % A later addition
+trapezium left angle=70, 
+trapezium right angle=110, 
+minimum width=3cm, 
+minimum height=1cm, text centered, 
+draw=black, fill=\standardcolor!50,
+rounded corners]
+
+\tikzstyle{process} = [rectangle, 
+minimum width=3cm, 
+minimum height=1cm, 
+text centered, 
+text width=3cm, 
+draw=black, 
+fill=orange!30]
+\tikzstyle{decision} = [ellipse, rounded corners,
+minimum width=3cm, 
+minimum height=1cm, 
+text centered, 
+draw=black, 
+fill=\standardcolor!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+%\usepackage{endfloat}
+\addbibresource{sections/references.bib}
+\singlespacing
+\addtolength{\oddsidemargin}{-.5in}
+\addtolength{\evensidemargin}{-.5in}
+\addtolength{\textwidth}{1in}
+
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1in}
+
+\DeclareMathOperator{\softmax}{softmax}
+%-----------------------------------------------------------
+
+\begin{document}
+\input{sections/titlepage}
+\input{sections/to-do-list}
+\section{Introduction}
+\input{sections/introduction}
+\section{Problem Statement}
+\input{sections/problem-statement}
+\section{Methodology}
+\input{sections/methodology}
+\section{Creating the KGs and Datasets}
+\input{sections/create-kgs-datasets}
+\input{sections/govreport}
+\input{sections/rebel}
+\input{sections/alternatives-to-rebel}
+\section{Training}
+\input{sections/training}
+\input{sections/unlimiformer}
+\input{sections/bart}
+\input{sections/bart-model-appropriateness}
+\section{Results}
+\input{sections/results}
+\section{Conclusion}
+\input{sections/conclusion}
+\newpage
+\printbibliography
+\end{document}

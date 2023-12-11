@@ -1,0 +1,45 @@
+main.aux
+main.bbl
+main.bcf
+main.blg
+main.fdb_latexmk
+main.fls
+main.log
+main.out
+main.run.xml
+main.synctex.gz
+# ignore all logs
+slides/*goodnotes.pdf
+**.DS_Store
+**.log
+**.blg
+**.aux
+**.swp
+**.amplbak
+**pratenddefaultcategory*
+**overleaf
+**.tar
+data/RQ1.xlsx
+**.RData
+**.Rhistory
+.Rproj.user
+**.sol
+**.nl
+**.pkl
+**.csv
+**.xlsx
+**/*.mp4
+# tex-related:
+**/*.swp
+**/*.log
+**/*.aux
+**/*.toc
+**/*.fls
+**/*.out
+**/*.fdb_latexmk
+**/*.synctex.gz
+# apple related
+**/*.DS_Store
+# python related
+**/__pycache__
+
