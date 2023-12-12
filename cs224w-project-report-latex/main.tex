@@ -102,55 +102,103 @@ fill=\standardcolor!30]
 \begin{document}
 \input{sections/titlepage}
 \subsection*{To-Do List (Remove When Done)}
-1. Explain objective function we are optimizing during training.
+\begin{enumerate}
+\item Explain objective function we are optimizing during training.
 
-2. Submit test results to Scrolls.
+\item Submit test results to Scrolls.
 
-3. Email Tolu on how to present code that doesn't run on Colab.
+%3. Email Tolu on how to present code that doesn't run on Colab.
 
-4. Present key result that length of summary is strongly dependent on input: LD < KG + LD < KG. Explain why this is.
+\item Present key result that length of summary is strongly dependent on input: LD < KG + LD < KG. Explain why this is.
 
-5. Upload models to Hugging Face.
+\item Upload models to Hugging Face.
 
-6. Figures
+\item Figures
 
-6.1 Shakespeare image with KG / dramatis personae.
+\item Shakespeare image with KG / dramatis personae.
 
-6.2 The Mirror and the Light (Hilary Mantel).
+\item The Mirror and the Light (Hilary Mantel).
 
-6.3 Sheel's KG.
+\item Sheel's KG.
 
-6.4 Plot distribution of LD, KG, and summary sizes for the 3 splits.
+\item Plot distribution of LD, KG, and summary sizes for the 3 splits.
 
-6.5 Graph convergence of summary length (number of tokens) to 90 for LDs, 750 for combined, 800+ for KGs.
+\item Graph convergence of summary length (number of tokens) to 90 for LDs, 750 for combined, 800+ for KGs.
 
-6.6 Training / loss and other graphs from the training.
+\item Training / loss and other graphs from the training.
+  we need to discuss training in more detail eg what is the loss function? or
+  how does the trainer work? The relevant module is
+\url{src/utils/custom_seq2seq_trainer.py}
+I think we need to summarize this either in the colab or the blog. This custom
+trainer has minor modifications of
+\url{https://huggingface.co/docs/transformers/v4.25.1/en/main_classes/trainer#transformers}
+Trainer This means that it uses a standard cross-entropy loss function ... adamw optimizer
 
-6.7 Table of results comparing R1, R2, RL, BERTScore F1 for the 3 experiments. Bold the best performers.
+\item Table of results comparing R1, R2, RL, BERTScore F1 for the 3 experiments. Bold the best performers.
+\end{enumerate}
 
-\section{Introduction}
-\input{sections/introduction}
+\section{Introduction} \input{sections/introduction}
 \section{Problem Statement}
-Augmenting large language models (LLMs) to handle long documents using retrieval-based methods is a highly active area of research. The key weakness of modern transformer-based LLMs is the token limit, or context window of attention. For instance, the context window of ChatGPT-3.5 is 4,096 tokens, while the average novel contains well over 100,000 tokens.
 
-\texttt{Unlimiformer} \cite{bertsch2023unlimiformer}, a recent retrieval-based method for augmenting LLMs at the decoder level, is the first long-range transformer to support unlimited length inputs. The key innovation of \texttt{unlimiformer} is to create a datastore of encodings which correspond to each token in the original document, and use the $k$-nearest neighbors ($k$-NN) algorithm to select the $k$ most relevant tokens in the datastore during decoding.
+Augmenting large language models (LLMs) to handle long documents using
+retrieval-based methods is a highly active area of research. The key weakness
+of modern transformer-based LLMs is the token limit, or context window of
+attention. For instance, the context window of ChatGPT-3.5 is 4,096 tokens,
+while the average novel contains well over 100,000 tokens.
 
-Since KGs store richer information than plain datastores, we predict that feeding KG relational data as tokens into \texttt{unlimiformer} can enhance the model's understanding of LDs, like how a \textit{dramatis personae} section can aid a reader in understanding a complicated novel by highlighting key relationships between characters. Thus, we hypothesize that the KG-augmented \texttt{unlimiformer} model will produce more accurate LD summaries than the baseline \texttt{unlimiformer} model.
+\texttt{Unlimiformer} \cite{bertsch2023unlimiformer}, a recent retrieval-based
+method for augmenting LLMs at the decoder level, is the first long-range
+transformer to support unlimited length inputs. The key innovation of
+\texttt{unlimiformer} is to create a datastore of encodings which correspond to
+each token in the original document, and use the $k$-nearest neighbors ($k$-NN)
+algorithm to select the $k$ most relevant tokens in the datastore during
+decoding.
+
+Since KGs store richer information than plain datastores, we predict that
+feeding KG relational data as tokens into \texttt{unlimiformer} can enhance the
+model's understanding of LDs, like how a \textit{dramatis personae} section can
+aid a reader in understanding a complicated novel by highlighting key
+relationships between characters. Thus, we hypothesize that the KG-augmented
+\texttt{unlimiformer} model will produce more accurate LD summaries than the
+baseline \texttt{unlimiformer} model.
 
 \section{Methodology}
-We compare and contrast the LD summaries generated by 3 transformer-based LLM models. Firstly, we train the facebook/BART base model using the \texttt{unlimiformer} augmentation, which operates on the entire LD and employs the $k$-NN algorithm. Secondly, we repeat the previous exercise but with KGs as inputs instead of LDs. Thirdly, we repeat the previous exercise with string inputs of concatenated KGs and LDs (in this order).
+We compare and contrast the LD summaries generated by 3 transformer-based LLM
+models. Firstly, we train the facebook/BART base model using the
+\texttt{unlimiformer} augmentation, which operates on the entire LD and employs
+the $k$-NN algorithm. Secondly, we repeat the previous exercise but with KGs as
+inputs instead of LDs. Thirdly, we repeat the previous exercise with string
+inputs of concatenated KGs and LDs (in this order).
 
 \section{Creating the KGs and Datasets}
-Our baseline dataset is the Hugging Face version of GovReport \cite{huang2021efficient}, a well-established LD summarization dataset with many practical applications. To generate the required datasets, we use REBEL \cite{huguet2021rebel}, a pre-trained, end-to-end relation extraction model that can be found on Hugging Face here\footnote{https://huggingface.co/Babelscape/rebel-large}, to perform named-entity recognition (NER) and relation extraction (RE).
+Our baseline dataset is the Hugging Face version of GovReport
+\cite{huang2021efficient}, a well-established LD summarization dataset with
+many practical applications. To generate the required datasets, we use REBEL
+\cite{huguet2021rebel}, a pre-trained, end-to-end relation extraction model
+that can be found on Hugging Face
+here\footnote{https://huggingface.co/Babelscape/rebel-large}, to perform
+named-entity recognition (NER) and relation extraction (RE).
 
 \subsection*{GovReport}
 **Why GovReport, and how is it used?**
 
 \input{sections/rebel}
 \subsection*{Alternatives to REBEL}
-Other means of performing NER and RE we considered include spaCy-LLM, DyGIE++, and LlamaIndex. spaCy-LLM\footnote{https://spacy.io/usage/large-language-models} is a package that integrates LLMs into natural language processing (NLP) pipelines provided by spaCy, an industry-standard NLP library. In particular, its built-in \texttt{spacy.REL.v1}\footnote{https://github.com/explosion/spacy-llm/tree/main/usage\_examples/rel\_openai} component supports RE with both zero-shot and few-shot prompting, but relies on an upstream NER component for entity extraction. 
 
-DyGIE++ is an RE component that refines and scores text spans designed to capture both intra-sentence and cross-sentence context. We cloned the code from the official GitHub repository linked here\footnote{https://github.com/dwadden/dygiepp} and attempted to replicate the process of training a model for RE, but were unsuccessful due to technical difficulties. 
+Other means of performing NER and RE we considered include spaCy-LLM, DyGIE++,
+and LlamaIndex. spaCy-LLM\footnote{https://spacy.io/usage/large-language-models}
+is a package that integrates LLMs into natural language processing (NLP) pipelines
+provided by spaCy, an industry-standard NLP library.
+In particular, its built-in
+\texttt{spacy.REL.v1}\footnote{https://github.com/explosion/spacy-llm/tree/main/usage\_examples/rel\_openai}
+component supports RE with both zero-shot and few-shot prompting, but relies on an upstream NER component for entity extraction. 
+
+DyGIE++ is an RE component that refines and scores text spans designed to
+capture both intra-sentence and cross-sentence context. We cloned the code from
+the official GitHub repository linked
+here\footnote{https://github.com/dwadden/dygiepp} and attempted to replicate
+the process of training a model for RE, but were unsuccessful due to technical
+difficulties. 
 
 Finally, LlamaIndex, a framework for connecting data sources for LLMs, has a class called \texttt{KnowledgeGraphIndex}\footnote{https://docs.llamaindex.ai/en/stable/examples/index\_structs/knowledge\_graph/KnowledgeGraphDemo.html} which is compatible with FAISS, the datastore that \texttt{unlimiformer} uses to conduct $k$-NN searches of top-level hidden state encodings, which would simplify our task of NER and RE.
 
@@ -158,8 +206,21 @@ Finally, LlamaIndex, a framework for connecting data sources for LLMs, has a cla
 
 \subsection*{Unlimiformer}
 **Why unlimiformer, and what is it?**
+\texttt{Unlimiformer} 
 
-\subsection*{BART}
+1. **Retrieval-Augmentations of LLMs**: Unlimiformer stands out for its novel integration of retrieval mechanisms directly into the Transformer architecture. This integration allows the model to dynamically access a large-scale, external datastore during both training and inference. This datastore is populated with encoded representations of a wide range of texts. The key advantage of this approach is that it enables the model to augment its language generation capabilities with contextually relevant, externally stored information. This is particularly useful for tasks requiring deep, specific knowledge or for improving the model's ability to stay updated with recent information.
+
+2. **Comparison with Other Methods (Datastore Access)**: Unlike traditional methods where datastores are accessed externally or through separate mechanisms, Unlimiformer integrates the datastore access internally within its architecture. This internal integration facilitates a more seamless and efficient interaction between the model's language processing capabilities and the external knowledge sources. In contrast, other models might rely on separate retrieval steps or external systems to incorporate knowledge from datastores, which can introduce complexity and inefficiency. Unlimiformer's approach, therefore, represents a significant advancement in making retrieval-augmented models more streamlined and effective.
+
+These points highlight Unlimiformer's innovative approach to enhancing LLMs with retrieval-augmented capabilities, particularly its unique internal mechanism for accessing and integrating external datastores.
+
+\subsection*{BART} We focused on training the \texttt{facebook/bart-base}
+model. Although there are by now many more advanced models and many of these
+(e.g. Llama) are compatible with \text{unlimiformer}, this is the benchmark in
+the \texttt{unlimiformer} paper \citet{bertsch2023unlimiformer}. Moreover, each
+model treats special tokens slightly differently and, as we shall see, the way
+tokens are treated is important to the resulting training on KGs.
+
 **How do we use BART for training?**
 
 **Work to train models individually.**
