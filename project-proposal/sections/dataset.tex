@@ -1,0 +1,13 @@
+\section*{Dataset}
+We choose to use the Hugging Face versions of the  GovReport 
+\cite{huang2021efficient} and BookSum \cite{kryscinski2021booksum} (fullbook)
+datasets because they are well-established long-document summarization datasets
+that are both publicly available and ready-to-use. The \texttt{unlimiformer}
+paper also works with these datasets and our first task is to replicate their
+results on these two datasets. Our main focus is GovReport because it is the
+larger dataset and it has many real-world applications. We also choose BookSum
+not only because it contains longer documents, but also because it is easy to
+subjectively judge the quality of a summary for books that we have read before.
+The Hugging Face GovReport dataset has an approximate $90/5/5\%$ split of
+approximately $19.5$k document-summary pairs. The full-book BookSum dataset
+has an approximate $80/10/10\%$ split of just over 400 document-summary pairs. 

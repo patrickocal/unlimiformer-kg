@@ -1,0 +1,11 @@
+Tristin asked a good question. What is the form of the KG? In the simple case, it will be just like in rebel (head, relation, tail) eg 
+[["Harry Potter", "friend of", "Ron Weasley"],
+["Harry Potter", "enemy of", "Voldemort"],
+...]. 
+
+But check this out: 
+https://github.com/MrGranddy/Harry-Potter-Knowledge-Graph/blob/master/formatted_data.json
+In the above, each entity comes with a dict!
+
+It could also be in the form: https://github.com/MrGranddy/Harry-Potter-Knowledge-Graph/blob/master/graph.json
+{"head" : ["Harry Potter", "Harry Potter", "Ron Weasley", ...], "relation" : ["friend", "enemy", ...], "tail" : ["Ron Weasley", "Voldemort", ...]}

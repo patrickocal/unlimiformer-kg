@@ -1,0 +1,43 @@
+
+One next step would be
+fine-tuning the REBEL model on the long-document summarization datasets we
+chose, namely the Hugging Face versions of GovReport \cite{huang2021efficient} 
+and BookSum \cite{kryscinski2021booksum}. The REBEL model is proven to be
+relatively flexible, having been fine-tuned on at least 4 widely-used relation
+extraction (RE) datasets of diverse contexts (CONLL04, DocRED, NYT, and ADE)
+and performed well on most of them. However, we bear in mind that the 4
+aforementioned datasets differ significantly from the one we propose. DocRED
+and ADE entities are words or short phrases, while CONLL04 and NYT entities are
+sentences from news articles. On the other hand, the entities in our dataset
+will be summaries. Fortunately, DocRED benchmark data 
+\url{https://paperswithcode.com/sota/joint-entity-and-relation-extraction-on-3}
+suggests that, when pre-trained, REBEL performs well on joint entity and
+relation extraction on DocRED, which is similar to what we are trying to
+accomplish.
+
+As such, we plan to train REBEL on GovReport and BookSum using the method
+outlined in part 4 of the original REBEL paper
+\cite{huguet2021rebel}. We note that even though REBEL
+as a standalone model can extract more than 200 different relation types, this
+may still prove insufficient for summarizing long documents. Should this be the
+case, we plan to implement a 2-stage extraction process. One such option would
+be to use DyGIE for the entity extraction, then use DREEAM for the relation
+extraction.
+
+Our long-document summarization project is dependent on the fact that KGs can
+encode the key semantic relationships between entities in a document in a more
+concise manner than a full datastore of the entire long document. We aim to
+evaluate the quality of our KGs by feeding them into a language model to obtain
+a hidden encoding of the the KG. Then, we will evaluate them against the gold
+summaries provided in the GovReport and BookSum datasets using ROUGE-1
+(unigram), ROUGE-2 (bigram), ROUGE-L (sub-sequence), and BERTScore. The ROUGE
+metrics compare summarization via lexical overlap between the model-generated
+and gold summaries, while BERTScore compares the semantic similarities of the
+two using the BERT embeddings. 
+
+If the KGs produced by REBEL are too large to be converted directly into
+summaries, we will use the graph-to-graph (G2G) method detailed in part 6.2 of
+\cite{wu2020extracting}. In short, the G2G method encodes the input KG with a
+GAT and uses the resulting node representations to make a binary salience
+prediction and generate a summary subgraph. We can then feed this smaller
+subgraph into ChatGPT and obtain a summary.

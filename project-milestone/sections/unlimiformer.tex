@@ -1,0 +1,35 @@
+Unlimiformer \cite{bertsch2023unlimiformer} is a nontrivial way to augment
+Large-Language Models. It involves capturing hidden states from the encoder and
+placing them in a datastore. We have successfully run basic
+\texttt{inference\_example.py} for our baseline \texttt{unlimiformer} model. We
+have also successfully trained the baseline Bart model on the GovReport
+dataset. We report our initial results in section \ref{sec-training-appendix}.
+We encountered a number of issues during this step and we raised Github issues
+with the authors/developers of \texttt{unlimiformer} (see
+\url{https://github.com/abertsch72/unlimiformer/issues/33}).
+
+We have also taken significant steps towards understanding the
+\texttt{unlimiformer} methodology and codebase. We are in detailed discussions
+with the authors in this respect (see
+\url{https://github.com/abertsch72/unlimiformer/issues/55}). We have made
+detailed comments to the codebase to make it more readable and understandable
+to ourselves and others (see documents with ``rich comments'' updates in the
+forked repository
+\url{https://github.com/patrickocal/unlimiformer/tree/main/src})
+
+The goal is to be able to suitable modify and augment the \texttt{unlimiformer}
+codebase with Knowledge Graphs. We have learnt that \texttt{unlimiformer} only
+uses the FAISS datastore for inference at the testing stage. Thus, if we are to
+create a secondary FAISS datastore (using the fact that a LlamaIndex
+KnowledgeGraphIndex can be stored as using FAISS), then the same applies. This
+presents a potential opportunity for us in that we may be able to replace FAISS
+and the \texttt{faiss.knn\_gpu} method with related PyG methods such as 
+\texttt{pool.knn\_graph} which would potentially allow us to extract relations
+from the $k$-nearest entities. This presumes we are able to establish and
+implement an isomorphism between entities and bags of tokens. \emph{***We would
+  appreciate staff feedback and a discussion/meeting in relation to whether we
+  should pursue this or whether we should pursue other less technical
+approaches to integrate KGs with the unlimiformer approach.***} 
+
+We discuss these in the next section.
+

@@ -1,0 +1,16 @@
+\subsection*{LlamaIndex}
+\texttt{LlamaIndex} is a framework for connecting data sources for
+Large-Language Models. In particular \texttt{LlamaIndex} has a class called
+\texttt{KnowledgeGraphIndex}. We have established that the latter is compatible
+with \texttt{FAISS} which is the datastore that \texttt{unlimiformer} uses to
+conduct a $k$-nearest neighbor search of top-level hidden state encodings that
+are most relevant to the query.
+\url{https://github.com/run-llama/llama_index/issues/8767}.
+This means that we can store the Knowledge Graph we create using LlamaIndex as
+a FAISS datastore. The idea is to create a secondary channel for the attention
+mechanism. The potential advantage is characterised in the following notebook:
+\href{https://github.com/run-llama/llama_index/blob/main/docs/examples/index_structs/knowledge_graph/KnowledgeGraphIndex_vs_VectorStoreIndex_vs_CustomIndex_combined.ipynb}{KG-datastore-notebook}.
+If a nearest neighbor search over a KG produces fewer, but more relevant
+results, this may help focus the cross-attention mechanism on what is most
+important (see figure \ref{fig-kg-datastore-example}).
+

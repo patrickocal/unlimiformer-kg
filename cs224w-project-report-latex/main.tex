@@ -208,32 +208,57 @@ Finally, LlamaIndex, a framework for connecting data sources for LLMs, has a cla
 **Why unlimiformer, and what is it?**
 \texttt{Unlimiformer} 
 
-1. **Retrieval-Augmentations of LLMs**: Unlimiformer stands out for its novel integration of retrieval mechanisms directly into the Transformer architecture. This integration allows the model to dynamically access a large-scale, external datastore during both training and inference. This datastore is populated with encoded representations of a wide range of texts. The key advantage of this approach is that it enables the model to augment its language generation capabilities with contextually relevant, externally stored information. This is particularly useful for tasks requiring deep, specific knowledge or for improving the model's ability to stay updated with recent information.
+\paragraph{Retrieval-Augmentations of LLMs} Unlimiformer stands out for its novel
+integration of retrieval mechanisms directly into the Transformer architecture.
+This integration allows the model to dynamically access a large-scale, external
+datastore during both training and inference. This datastore is populated with
+encoded representations of a wide range of texts. The key advantage of this
+approach is that it enables the model to augment its language generation
+capabilities with contextually relevant, externally stored information. This is
+particularly useful for tasks requiring deep, specific knowledge or for
+improving the model's ability to stay updated with recent information.
 
-2. **Comparison with Other Methods (Datastore Access)**: Unlike traditional methods where datastores are accessed externally or through separate mechanisms, Unlimiformer integrates the datastore access internally within its architecture. This internal integration facilitates a more seamless and efficient interaction between the model's language processing capabilities and the external knowledge sources. In contrast, other models might rely on separate retrieval steps or external systems to incorporate knowledge from datastores, which can introduce complexity and inefficiency. Unlimiformer's approach, therefore, represents a significant advancement in making retrieval-augmented models more streamlined and effective.
+\paragraph{Comparison with Other Methods (Datastore Access)} Unlike traditional
+methods where datastores are accessed externally or through separate
+mechanisms, Unlimiformer integrates the datastore access internally within its
+architecture. This internal integration facilitates a more seamless and
+efficient interaction between the model's language processing capabilities and
+the external knowledge sources. In contrast, other models might rely on
+separate retrieval steps or external systems to incorporate knowledge from
+datastores, which can introduce complexity and inefficiency. Unlimiformer's
+approach, therefore, represents a significant advancement in making
+retrieval-augmented models more streamlined and effective.
 
 These points highlight Unlimiformer's innovative approach to enhancing LLMs with retrieval-augmented capabilities, particularly its unique internal mechanism for accessing and integrating external datastores.
 
 \subsection*{BART} We focused on training the \texttt{facebook/bart-base}
-model. Although there are by now many more advanced models and many of these
-(e.g. Llama) are compatible with \text{unlimiformer}, this is the benchmark in
-the \texttt{unlimiformer} paper \citet{bertsch2023unlimiformer}. Moreover, each
-model treats special tokens slightly differently and, as we shall see, the way
-tokens are treated is important to the resulting training on KGs.
+model. Although there are by now many more advanced models, and many of these
+(e.g. Llama) are compatible with \text{unlimiformer}, BART provides the main
+benchmark in the \texttt{unlimiformer} paper \cite{bertsch2023unlimiformer}.
+In addition, each model treats special tokens slightly differently and, as we
+shall see, the way tokens are treated is important to the resulting training on
+KGs.
 
-**How do we use BART for training?**
+\subsection{How we use BART for training}
+BART, like other transformer-based models, is considered adept at handling
+structured inputs due to several key features of its architecture and design.
+\emph{Structured inputs} refer to data that is organized in a predictable,
+often hierarchical manner, with clear relationships between different parts.
+This contrasts with unstructured data, like free-form text, where the
+organization and relationships are not as explicitly defined. Examples of
+structured inputs include: databases or tables; XML or JSON data, where
+elements are nested and have defined relationships; Knowledge graphs, where
+information is represented as entities and relationships (triples).
+
+We 
+
 
 **Work to train models individually.**
 \subsubsection{Background on BART}
-BART, like other transformer-based models, is considered adept at handling structured inputs due to several key features of its architecture and design.
 
 **Structured Inputs
 
-Structured inputs refer to data that is organized in a predictable, often hierarchical manner, with clear relationships between different parts. This contrasts with unstructured data, like free-form text, where the organization and relationships are not as explicitly defined. Examples of structured inputs include:
 
-- Databases or tables where data is organized in rows and columns.
-- XML or JSON data, where elements are nested and have defined relationships.
-- Knowledge graphs, where information is represented as entities and relationships (triples).
 
 **Why BART Handles Structured Inputs Well**
 

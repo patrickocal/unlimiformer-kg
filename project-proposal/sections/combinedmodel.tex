@@ -1,0 +1,36 @@
+\section*{Augmenting \texttt{unlimiformer} with Knowledge Graphs}  Our goal is
+to enrich \texttt{unlimiformer} approach with a knowledge graph (see figure
+\ref{fig-latex}). To do so, we will use standard entity-extraction techniques
+to identify key entities in each document (as in \cite{wu2020extracting}).
+Since KGs store richer information than a plain datastores, we aim to show that
+they enable us to generate more accurate and coherent summaries. We draw
+inspiration from \cite{wang2022multi} in the related task of multi-document
+summarization.
+
+Our second step will be to identify an isomorphism between entities $E$ in the
+KG and sets $H_{e, E}$ of top-level encodings of tokens (similar to
+\cite{galkin2021nodepiece}). For example, if the
+literary character $E = \texttt{Karamazov}$, then our entity embedding is the
+set $H_{e, E} = \{h_\texttt{Kar}, h_\texttt{amaz}, h_\texttt{ov}\}$ in
+$\mathcal H_\text{enc}$. This set of tokens would form a clique in our encoding
+of the KG. Relations or edges may also be encoded as sequences of tokens that
+connect entities. We recognize that there are still some modelling choices to
+be explored in this respect. Yet this perspective of cliques as entities
+already brings to mind the \texttt{struct2vec} notion of structural similarity.
+
+Introducing KGs will thus allow us to employ more refined notions of
+$k$-``nearest''. In terms of our earlier mathematical discourse,
+\texttt{unlimiformer} defines ``nearest’’ according to the topology generated
+by the linear functional $\langle p_{d, j}, \cdot \rangle : \mathcal
+H_\text{enc} \rightarrow \mathbb R$ for each token $j$ in the target sequence.
+This is the \emph{weak topology} over the hidden state space. We will explore
+more graph-based topologies such as  structural similarity (in the spirit of
+\texttt{struct2vec} \cite{ribeiro2017struc2vec}) which may be more appropriate
+for long document summarization.
+
+%We intend to leverage our relative abundance of encoded information (compared to a datastore) to make more intelligent selections of $h_e$ vectors than the baseline model, and in turn produce better long document summaries.
+%As with the baseline model, we define $h_d$ as the decoder hidden state and $h_e$ as the encoder's last-layer hidden state.
+%For our combined model, instead of storing the hidden-state $h_e$ in a datastore during the encoding process, we will store them as entities in a (hidden representation of a) KG (see Fig. 2). Relations between the entities will be defined by the degree of similarity between the $h_e$ vectors. As such, the KG created will be a hidden KG whose information is only meaningful to the model.
+%
+%To populate the KG, we propose a TransR model, which models both entities and relations as vectors (say, in $\mathbb{R}^i$ and $\mathbb{R}^j$ space, respectively), with $M \in \mathbb{R}^{j \times i}$ space as the projection matrix and the score function being $f_r(h, t)=-||h_{\perp}+r-t_{\perp}||$. TransR is beneficial since it is capable of encoding symmetric, antisymmetric, inverse, transitive, and $1$-to-N relations.
+%
