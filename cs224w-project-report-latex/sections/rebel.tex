@@ -1,8 +1,17 @@
 \subsection*{REBEL}
-We chose REBEL because it is end-to-end (it finds entities and relations at the same time), open-source, and easy to implement using Hugging Face. Also, according to the DocRED paper by Yao et al \cite{yao2019DocRED}, pretrained REBEL yields the best joint entity and relation extraction (NER and RE) result compared with the benchmark among all models sampled, with a relation F1 score of 47.1\footnote{https://paperswithcode.com/sota/joint-entity-and-relation-extraction-on-3}.
+We chose REBEL because it is end-to-end (it finds entities and relations at the same time), open-source, and easy to implement using Hugging Face. 
+Also, according to the DocRED paper by Yao et al \cite{yao2019DocRED}, pretrained REBEL yields the best joint entity and relation extraction (NER and RE) 
+result compared with the benchmark among all models sampled, with a relation F1 score of 47.1\footnote{https://paperswithcode.com/sota/joint-entity-and-relation-extraction-on-3}.
 
-Since the pre-trained REBEL model has a token limit, we chose to split the LD into 128-token chunks before extracting head-relation-tail triplets from each chunk. Next, we used NetworkX to assemble the triplets and form a directed KG. The code for our REBEL implementation can be found here\footnote{https://github.com/patrickocal/unlimiformer/blob/main/rebel.py}.
+Since the pre-trained REBEL model has a token limit, we chose to split the LD into 128-token chunks before extracting 3 head-relation-tail triplets from each chunk. 
+We chose to split the text into 128 tokens chunks because it is about one paragraph of text. By visual inspection, we found that there are about 3 triples in each paragraph.
+In addition, since REBEL uses beam search, the number of triples had to be less than or equal to the number of beams and we found that the optimal number of beams, based
+on runtime, was 3 beams which means the max triples per chunk would be 3.
 
-**Why 128 span length?**
+Once the triplets were extracted, we used NetworkX to create a directed graph, and used MatPlotLib to visualize and plot the results. Below is a sample image of a
+knowledge graph that was produced from a gold summary.
+
+[Insert Image/Plot of KG]
+
 
 **Why extract triplets (and not extract triplets typed)?**
