@@ -17,6 +17,14 @@ Our Google Colab provides additional details of our codebase.
 11. Table of results comparing R1, R2, RL, BERTScore F1 for the 3 experiments. Bold the best performers.
 12. Acknowledge any potential weaknesses in our experimental approach: 13.1 eg there may be an advantage to the combined model. What would we do differently with more time: fine-tune for longer summaries using the other two datasets (LD and KG alone). Then repeat to see if KG+LD still wins. I don't think this is too much of a problem as, if there is no improvement to be made, training will quickly halt. training involves truncating the long document to just under 16.5k tokens. By putting the KG at the front of the text, we are truncating more of the LD. For the longest of documents, the KGs are upto 50k tokens long.
 
+| Right | Left | Default | Center |
+|------:|:-----|---------|:------:|
+|   12  |  12  |    12   |    12  |
+|  123  |  123 |   123   |   123  |
+|    1  |    1 |     1   |     1  |
+
+Here is an example citation in Markdown [[Cockett, 2022]](https://doi.org/10.5281/zenodo.6476040).
+
 ## Introduction
 In this blog post, we explore how knowledge graphs (KGs) can applied to improve the summarization of long documents (LDs). LDs are often difficult to understand and summarize. This is especially true for technical documents such as government reports, where entities often include obscure institutions and lesser-known individuals. In literature, one way of dealing with this complexity is to introduce a _dramatis personae_, or cast of characters, at the beginning of the text. Famous examples include complicated historical texts, such as Hilary Mantel's  "The Mirror and the Light", and the Shakespearean plays. We hypothesize that, much like how a _dramatis personae_ can aid a reader in understanding a complicated novel by highlighting key relationships between characters, KGs can help large language models (LLMs) generate better summaries of LDs. To do so, we exploit a recent innovation in LD summarization that allows for documents of arbitrary length called `unlimiformer`[^1].
 
