@@ -4,8 +4,8 @@ bibliography:
 ---
 
 ::: center
-**Project Report**\
-**Long Document Summarization:**\
+**Project Report**
+**Long Document Summarization:**
 **Augmenting Unlimiformer with Knowledge Graphs[^1]**
 
 ::: {#tab:my_label}
@@ -25,7 +25,7 @@ bibliography:
 2.  Submit test results to Scrolls.
 
 3.  Present key result that length of summary is strongly dependent on
-    input: LD \< KG + LD \< KG. Explain why this is.
+    input: LD < KG + LD < KG. Explain why this is.
 
 4.  Upload models to Hugging Face.
 

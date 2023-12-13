@@ -220,7 +220,7 @@ control for length of summary. We do so by re-initializing training with a
 model that is fine-tuned to produce longer summaries. The goal is to create a
 fair horse race to compare the performance across the three datasets.
 
-\subsection*{Overview of results} Once we control for length of summary, our
+\subsection*{Overview of our final results} Once we control for length of summary, our
 final results are in line with our initial hypothesis. We summarise these
 results in \ref{fig:summary-of-results-intro}.
 
@@ -237,24 +237,12 @@ results in \ref{fig:summary-of-results-intro}.
     \label{tab:my_label}
 \end{table}
 
-We find that KGs alone
-produce the worst summaries, 
+We find that the best summaries are produced by the combined KG+LD input. This
+is followed by LDs and then finally KGs. All our results are for the validation 
+set.
 
 
-Augmenting large language models (LLMs) to handle long documents using
-retrieval-based methods is a highly active area of research. Since Vaswani et
-al 2017, transformers have become the default approach to natural language
-processing. Transformers have succeeded due to their ability to capture long
-range dependencies between tokens. They do so by abandoning the sequential
-approach of recurrent neural networks and instead allowing the decoder to
-attend to a complete graph over the encoded hidden states of tokens. The
-complexity of complete graphs is therefore quadratic in the number of tokens.
-The result is a powerful \emph{attention} mechanism, but one that is local and
-restricted to the \emph{context window}. The context window of ChatGPT-3.5 is
-4,096 tokens, while the average novel contains well over 100,000 tokens.
-Proprietory models such as GPT-4 and Claude provide users with models that
-extend beyond 100,000 tokens, but the question remains: what is the best way to
-achieve this?
+
 
 
 
@@ -301,6 +289,20 @@ Finally, LlamaIndex, a framework for connecting data sources for LLMs, has a cla
 
 \subsection*{Unlimiformer}
 **Why unlimiformer, and what is it?**
+Augmenting large language models (LLMs) to handle long documents using
+retrieval-based methods is a highly active area of research. Since Vaswani et
+al 2017, transformers have become the default approach to natural language
+processing. Transformers have succeeded due to their ability to capture long
+range dependencies between tokens. They do so by abandoning the sequential
+approach of recurrent neural networks and instead allowing the decoder to
+attend to a complete graph over the encoded hidden states of tokens. The
+complexity of complete graphs is therefore quadratic in the number of tokens.
+The result is a powerful \emph{attention} mechanism, but one that is local and
+restricted to the \emph{context window}. The context window of ChatGPT-3.5 is
+4,096 tokens, while the average novel contains well over 100,000 tokens.
+Proprietory models such as GPT-4 and Claude provide users with models that
+extend beyond 100,000 tokens, but the question remains: what is the best way to
+achieve this?
 
 \paragraph{Retrieval-Augmentations of LLMs} Unlimiformer stands out for its novel
 integration of retrieval mechanisms directly into the Transformer architecture.
