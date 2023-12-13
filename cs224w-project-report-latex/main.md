@@ -7,7 +7,7 @@ CS224W Winter 2023 course project
 
 Our colaboratory notebook provides some additional detail of our codebase.
 
-## To-Do List (Remove When Done) {#to-do-list-remove-when-done .unnumbered}
+## To-Do List (Remove When Done) 
 
 1.  Explain objective function we are optimizing during training.
 
@@ -55,7 +55,7 @@ Our colaboratory notebook provides some additional detail of our codebase.
     tokens. By putting the KG at the front of the text, we are truncating more
     of the LD. For the longest of documents, the KGs are upto 50k tokens long.
 
-## Introduction {#introduction .unnumbered}
+## Introduction 
 
 Long documents are often difficult to understand and summarize. This is
 especially true of technical documents such as government reports where entities
@@ -78,7 +78,7 @@ the summarization of long documents. To do so, we exploit a recent innovation in
 long-document summarization that allows for documents of arbitrary length called
 [unlimiformer](https://arxiv.org/abs/2305.01625).
 
-### Problem Statement {#problem-statement .unnumbered}
+### Problem Statement 
 
 Until recently long documents were already too long for the limited context
 window of attention of transformer models. Whilst the context window is still
@@ -96,7 +96,7 @@ architecture and design suitable experiments that will enable us measure any
 possible impact of including a "cast of entities" (and their relations) at the
 beginning of the document.
 
-### Knowledge Graphs (KGs) of Long Documents (LDs) {#knowledge-graphs-kgs-of-long-documents-lds .unnumbered}
+### Knowledge Graphs (KGs) of Long Documents (LDs) 
 
 Knowledge graphs stand in contrast with long documents in that they are
 structured and concise. They form a significant reduction of the document to
@@ -105,7 +105,7 @@ facts (expressed as relations between entities).
 We choose the REBEL end-to-end relation extractor to generate our knowledge
 graphs.
 
-### Two new KG datasets {#two-new-kg-datasets .unnumbered}
+### Two new KG datasets 
 
 In this project, we generate a new collection of knowledge graphs: one for each
 example in the GovReport dataset. This is a significant undertaking for two
@@ -128,7 +128,7 @@ dataset](https://huggingface.co/datasets/patrickocal/gov_report_kg/viewer/gov_re
 port_kg_comb) replaces each LD with a single string that is the concatenation of
 the KG and LD.
 
-### Training BART+Unlimiformer {#training-bartunlimiformer .unnumbered}
+### Training BART+Unlimiformer 
 
 [Unlimiformer](__) is a recent retrieval-based method for augmenting LLMs at
 the decoder level, is the first long-range transformer to support unlimited
@@ -137,7 +137,27 @@ encodings which correspond to each token in the original document, and use the
 $k$-nearest neighbors ($k$-NN) algorithm to select the $k$ most relevant tokens
 in the datastore during decoding.
 
-### Our experiments {#our-experiments .unnumbered}
+~~~ python
+    def search(self, queries, k):
+        """
+        -search method retrieves the indices of the k closest vectors to query
+        """
+        if len(queries.shape) == 1: # searching for only 1 vector, add one extra dim
+            self.logger.info("Searching for a single vector; unsqueezing")
+            queries = queries.unsqueeze(0)
+        assert queries.shape[-1] == self.dimension # query vectors are same shape as "key" vectors
+        if self.use_flat_index:
+            if self.gpu_index:
+                scores, values = faiss.knn_gpu(faiss.StandardGpuResources(),
+                                               queries,
+                                               self.keys,
+                                               k,
+                                               metric=faiss.METRIC_INNER_PRODUCT,
+                                               device=self.device.index
+                                               )
+~~~
+
+### Our experiments 
 
 Our experiments focus on comparing the summary outputs across the three
 datasets: the original GovReports, the GovReportsKG and the GovReportsKG+LD. Our
@@ -156,7 +176,7 @@ for length of summary. We do so by re-initializing training with a model that
 is fine-tuned to produce longer summaries. The goal is to create a fair "horse
 race" to compare summarization performance across the three datasets.
 
-### Overview of our final results {#overview-of-our-final-results .unnumbered}
+### Overview of our final results 
 
 Once we control for length of summary, our final results are in line
 with our initial hypothesis. We summarise these results in
@@ -165,7 +185,7 @@ reference="fig:summary-of-results-intro"}.
 
 \<table\>
 
-::: {#tab:my_label}
+::: 
   --- --- -- -- --
    2   3        
                 
@@ -180,19 +200,19 @@ input. This is followed by LDs and then finally KGs. There is a
 significant difference in performance between the three. All our results
 are for the validation set.
 
-## Methodology {#methodology .unnumbered}
+## Methodology 
 
 We use
 
 We compare and contrast the LD summaries generated by 3
 transformer-based LLM models. Firstly, we train the facebook/BART base
-model using the `unlimiformer` augmentation, which operates on the
+model using the unlimiformer augmentation, which operates on the
 entire LD and employs the $k$-NN algorithm. Secondly, we repeat the
 previous exercise but with KGs as inputs instead of LDs. Thirdly, we
 repeat the previous exercise with string inputs of concatenated KGs and
 LDs (in this order).
 
-### Specifics of generating each KG {#generating-each-kg .unnumbered}
+### Specifics of generating each KG 
 
 Our baseline dataset is the Hugging Face version of GovReport
 [@huang2021efficient], a well-established LD summarization dataset with
@@ -206,7 +226,7 @@ some of the alternatives to REBEL and discuss those in more detail in the
 
 ##### (fix refs ^)
 
-#### REBEL {#rebel .unnumbered}
+#### REBEL 
 
 We choose REBEL because at the time of writing it is the [top performing](link)
 end-to-end relation extractor on the [DocRED dataset](DocRED paper by Yao et al
@@ -289,9 +309,9 @@ KG into smaller segments, the model might process each unit more
 efficiently, especially if the triples are concise and the relationships
 within them are straightforward.)
 
-### Specifics of augmenting the GovReport dataset {#data .unnumbered}
+### Specifics of augmenting the GovReport dataset 
 
-#### GovReport {#govreport .unnumbered}
+#### GovReport 
 
 The GovReport dataset is a well-established long-document summarization
 datasets that is both publicly available and ready-to-use. We use it
@@ -302,9 +322,9 @@ $90/5/5\%$ split of approximately $19.5$k document-summary pairs.
 
 
 
-## Training {#training .unnumbered}
+## Training 
 
-### Unlimiformer {#unlimiformer .unnumbered}
+### Unlimiformer 
 
 \*\*Why unlimiformer, and what is it?\*\* Augmenting large language
 models (LLMs) to handle long documents using retrieval-based methods is
@@ -351,12 +371,12 @@ This highlights Unlimiformer's innovative approach to enhancing
 LLMs with retrieval-augmented capabilities, particularly its unique
 internal mechanism for accessing and integrating external datastores.
 
-### BART {#bart .unnumbered}
+### BART 
 
 We focused on training the `facebook/bart-base` model (henceforth BART).
 Although there now many more advanced models, and many of these (e.g. Llama)
 are compatible with Unlimiforemer, BART provides the main benchmark in the
-`unlimiformer` paper [@bertsch2023unlimiformer]. It has a context window of
+unlimiformer paper [@bertsch2023unlimiformer]. It has a context window of
 1024 tokens, anIn addition, each model treats
 special tokens slightly differently and, as we shall see, the way tokens are
 treated is important to the resulting training on KGs.
@@ -372,21 +392,21 @@ databases or tables; XML or JSON data, where elements are nested and
 have defined relationships; Knowledge graphs, where information is
 represented as entities and relationships (triples).
 
-### How we use BART for training {#how-we-use-bart-for-training .unnumbered}
+### How we use BART for training 
 
 
-### Appropriateness of the BART Model {#appropriateness-of-the-bart-model .unnumbered}
+### Appropriateness of the BART Model 
 
 When training our model, we chose to feed the relational data of our KGs
-as tokens into `unlimiformer`, as opposed to embedding the KGs as
+as tokens into unlimiformer, as opposed to embedding the KGs as
 separate relations into vector space. We believe that our approach is
 more appropriate as it allows us to better utilize the the
-`unlimiformer` framework, while preserving as much of the KG structure
+unlimiformer framework, while preserving as much of the KG structure
 as possible within the dataset.
 
 \*\*Work to train models individually.\*\*
 
-#### Background on BART {#background-on-bart .unnumbered}
+#### Background on BART 
 
 \*\*Structured Inputs
 
@@ -443,7 +463,7 @@ be to ensure that the rest of your training pipeline, including data
 preprocessing and model fine-tuning, is optimized to leverage this
 structure effectively.
 
-## Results {#results .unnumbered}
+## Results 
 
 \*\*How did our model perform compared to the baseline? Explanation?\*\*
 
@@ -504,7 +524,7 @@ alignment (LD) or on covering key points and maintaining structure (KG).
 Continued training and further optimization could enhance the
 performance of both models, potentially narrowing these gaps.
 
-## Conclusion {#conclusion .unnumbered}
+## Conclusion 
 
 \*\*Do we recommend using KGs for LD summarization?\*\*
 
@@ -524,9 +544,9 @@ performance of both models, potentially narrowing these gaps.
 
 [^8]: https://docs.llamaindex.ai/en/stable/examples/index_structs/knowledge_graph/KnowledgeGraphDemo.html
 
-## Appendix {#appendix .unnumbered}
+## Appendix 
 
-### Alternatives to REBEL {#alternatives-to-rebel .unnumbered}
+### Alternatives to REBEL 
 
 Other means of performing NER and RE we considered include spaCy-LLM,
 DyGIE++, and LlamaIndex. spaCy-LLM[^5] is a package that integrates LLMs
@@ -544,6 +564,6 @@ unsuccessful due to technical difficulties.
 
 Finally, LlamaIndex, a framework for connecting data sources for LLMs,
 has a class called `KnowledgeGraphIndex`[^8] which is compatible with
-FAISS, the datastore that `unlimiformer` uses to conduct $k$-NN searches
+FAISS, the datastore that unlimiformer uses to conduct $k$-NN searches
 of top-level hidden state encodings, which would simplify our task of
 NER and RE.
