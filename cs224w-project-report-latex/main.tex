@@ -179,41 +179,55 @@ facts (expressed as relations between entities).
 %\texttt{unlimiformer} model will produce more accurate LD summaries than the
 %baseline \texttt{unlimiformer} model.
 
-We chose the REBEL end-to-end relation extractor to generate our knowledge graphs.
+We choose the REBEL end-to-end relation extractor to generate our knowledge graphs.
 
-\subsection*{A new dataset}
-In this project, we explore the role of knowledge graphs in generate a new
-dataset of knowledge graphs: one for each example in the GovReport dataset.
-This is a significant undertaking for two reasons:
+\subsection*{Two new KG datasets} In this project, we explore the role of
+knowledge graphs in generate a new collection of knowledge graphs: one for each
+example in the GovReport dataset. This is a significant undertaking for two
+reasons:
 \begin{enumerate}
-  \item there are approximately 19,500 documents in the dataset.
-  \item the variance in the length of documents is significant and this lead to
-    major hardware management issues.
+  \item there are approximately 19,500 documents in GovReport;
+  \item the variance in the length of documents is significant and this leads
+    to major hardware management issues.
 \end{enumerate}
-There were significant design choices in how relations are specified and passed
-to the language model to generate summaries. We chose to design each KG as a
-single sequence of subsequences: one subsequence for each relation triplet in
-the KG.
-This dataset was then  the KGs with GovReport. The first
-dataset replaces each LD in GovReport with a KG. The second replaces each LD
-with a single string that is the concatenation of the KG and LD.
-\subsection*{Training BART+Unlimiformer}
-\texttt{Unlimiformer} \cite{bertsch2023unlimiformer}, a recent retrieval-based
-method for augmenting LLMs at the decoder level, is the first long-range
-transformer to support unlimited length inputs. The key innovation of
-\texttt{unlimiformer} is to create a datastore of encodings which correspond to
-each token in the original document, and use the $k$-nearest neighbors ($k$-NN)
-algorithm to select the $k$ most relevant tokens in the datastore during
-decoding.
+There are significant design choices relating to how relations are specified
+and passed to the language model to generate summaries. We specify
+each KG as a single sequence of subsequences: one subsequence for each relation
+triplet in the KG. We then integrate the collection of KGs with GovReport.
+The first dataset replaces each LD in GovReport with a KG. The second dataset replaces each LD with a single string that is the concatenation of the KG and LD.
+\subsection*{Training BART+Unlimiformer} \texttt{Unlimiformer}
+\cite{bertsch2023unlimiformer}, a recent retrieval-based method for augmenting
+LLMs at the decoder level, is the first long-range transformer to support
+unlimited length inputs. The key innovation of \texttt{unlimiformer} is to
+create a datastore of encodings which correspond to each token in the original
+document, and use the $k$-nearest neighbors ($k$-NN) algorithm to select the
+$k$ most relevant tokens in the datastore during decoding.
 
-\subsection*{Three experiments}
+\subsection*{Our experiments} Our experiments focus on comparing the summary
+outputs across the three datasets: the original GovReports, the GovReportsKG
+and the GovReportsKG+LD. Our initial findings reveal significant differences
+between the summaries generated from LDs vs the new datasets. The default BART
+model produces summaries of approximately 130 tokens with a typical range of
+100 to  and 150 tokens. In contrast, the KGs and KG+LDs generated summaries of
+approximately 900 tokens with a typical range of 600 to 1100. The target/golden
+summaries for GovReport are closer to the latter with the number of tokens
+being 600 on average with a typical range of between 400 and 1000.
 
-\subsection*{Overview of results}
-Our final results are in line with our initial hypothesis. The following table
-summarises our results for our final results.
+<table with number of tokens similar to Unlimiformer Scrolls?>
 
-We find that KGs
-alone produce the worst summaries, 
+We explore the cause of these differences and refine our experiments to try and
+control for length of summary. We do so by re-initializing training with a
+model that is fine-tuned to produce longer summaries. The goal is to create a
+fair horse race to compare the performance across the three datasets.
+
+\subsection*{Overview of results} Once we control for length of summary, our
+final results are in line with our initial hypothesis. We summarise these
+results in \ref{fig:summary-of-results-intro}.
+
+<table>
+
+We find that KGs alone
+produce the worst summaries, 
 
 
 Augmenting large language models (LLMs) to handle long documents using
