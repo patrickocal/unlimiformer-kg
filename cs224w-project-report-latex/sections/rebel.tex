@@ -1,15 +1,15 @@
 \subsection*{REBEL}
-We chose REBEL because it is end-to-end (it finds entities and relations at the same time), open-source, and easy to implement using Hugging Face. 
-Also, according to the DocRED paper by Yao et al \cite{yao2019DocRED}, pretrained REBEL yields the best joint entity and relation extraction (NER and RE) 
-result compared with the benchmark among all models sampled, with a relation F1 score of 47.1\footnote{https://paperswithcode.com/sota/joint-entity-and-relation-extraction-on-3}.
+We use REBEL because it is end-to-end (it finds entities and relations simultaneously), open-source, and easy to implement using Hugging Face. Additionally, as per 
+the DocRED paper by Yao et al \cite{yao2019DocRED}, pretrained REBEL currently yields the best joint entity and relation extraction (NER and RE) results compared with 
+the benchmark among all models sampled, achieving a relation F1 score of 47.1\footnote{https://paperswithcode.com/sota/joint-entity-and-relation-extraction-on-3}.
 
-Since the pre-trained REBEL model has a token limit, we chose to split the LD into 128-token chunks before extracting 3 head-relation-tail triplets from each chunk. 
-We chose to split the text into 128 tokens chunks because it is about one paragraph of text. By visual inspection, we found that there are about 3 triples in each paragraph.
-In addition, since REBEL uses beam search, the number of triples had to be less than or equal to the number of beams and we found that the optimal number of beams, based
-on runtime, was 3 beams which means the max triples per chunk would be 3.
+Since the pre-trained REBEL model has a token limit, we split the LD into 128-token chunks before extracting 3 head-relation-tail triplets from each chunk. We 
+split the text into 128 token chunks as it is approximately the length of one paragraph. Through visual inspection, we find that there are typically 3 triples 
+in each paragraph. Moreover, since REBEL employs beam search, the number of triples must be less than or equal to the number of beams. We determine that the optimal number 
+of beams, based on runtime, is 3 beams, which means the maximum triples per chunk would be 3.
 
-Once the triplets were extracted, we used NetworkX to create a directed graph, and used MatPlotLib to visualize and plot the results. Below is a sample image of a
-knowledge graph that was produced from a gold summary.
+Once the triplets are extracted, we use NetworkX to create a directed graph, and employ MatPlotLib to visualize and plot the results. Below is a sample image of a knowledge 
+graph produced from a gold summary.
 
 [Insert Image/Plot of KG]
 
