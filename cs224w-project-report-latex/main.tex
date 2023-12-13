@@ -138,7 +138,7 @@ Trainer This means that it uses a standard cross-entropy loss function ... adamw
 \end{enumerate}
 
 \section*{Introduction}
-In this blog post, we explore how knowledge graphs (KGs) can be applied to
+In this blog post, we explore how knowledge graphs (KGs) can improve be applied to
 improve the accuracy of the \texttt{unlimiformer} long-range transformer for
 the task of long document (LD) summarization.
 
@@ -190,6 +190,13 @@ This is a significant undertaking for two reasons:
   \item the variance in the length of documents is significant and this lead to
     major hardware management issues.
 \end{enumerate}
+There were significant design choices in how relations are specified and passed
+to the language model to generate summaries. We chose to design each KG as a
+single sequence of subsequences: one subsequence for each relation triplet in
+the KG.
+This dataset was then  the KGs with GovReport. The first
+dataset replaces each LD in GovReport with a KG. The second replaces each LD
+with a single string that is the concatenation of the KG and LD.
 \subsection*{Training BART+Unlimiformer}
 \texttt{Unlimiformer} \cite{bertsch2023unlimiformer}, a recent retrieval-based
 method for augmenting LLMs at the decoder level, is the first long-range
@@ -202,6 +209,13 @@ decoding.
 \subsection*{Three experiments}
 
 \subsection*{Overview of results}
+Our final results are in line with our initial hypothesis. The following table
+summarises our results for our final results.
+
+We find that KGs
+alone produce the worst summaries, 
+
+
 Augmenting large language models (LLMs) to handle long documents using
 retrieval-based methods is a highly active area of research. Since Vaswani et
 al 2017, transformers have become the default approach to natural language
