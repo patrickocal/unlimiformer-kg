@@ -75,6 +75,13 @@ Other means of performing NER and RE we considered include spaCy-LLM[^6], DyGIE+
 ## Training
 
 ### Unlimiformer
+`Unlimiformer`, the first long-range transformer to support unlimited length inputs, stands out for its novel integration of retrieval mechanisms directly into the transformer architecture. This innovation enables the model to augment its language generation capabilities with contextually relevant, externally stored information, such as facilitating seamless and efficient interaction with external datastores. 
+
+To bypass the constraint of limited window of attention, `unlimiformer` changes the contents of the context window. That is, instead of passing the next chunk of text in the sequence, it feeds the decoder the k-nearest neighbors that it can find in a datastore that contains all the tokens in the entire document. Consider a simplified equation of attention $\text{Attn}(Q, K, V) = \softmax (Q K^T) V$ where, for each hidden-layer state h_d of the decoder and the final hidden layer state h_e of the encoder, $Q = h_d W_Q$, $K = h_e W_K$ and $V = h_e W_v$. The trick is to rewrite $(Q K ^T)_{i, j} = \langle p_{d,i}, h_{e, j}\rangle$ where $p_{d, i} = h_{d, i} W_Q W_K^T$. This allows us to create a datastore $\{h_{e, j} \in \mathcal H_{\text{enc}} : j \in \text{LongDoc}\}$ and identify the k nearest neighbors in the datastore to the projection p_d. Only those k nearest neighbors are passed to the decoder of an otherwise standard LLM.
+
+As demonstrated by our training data, `unlimiformer` significantly improves performance for LD, KG, and KG+LD models. See results below.
+
+`Place results here.`
 
 #### Retrieval-Augmentations of LLMs
 
