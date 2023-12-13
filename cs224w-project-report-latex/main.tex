@@ -138,13 +138,52 @@ Trainer This means that it uses a standard cross-entropy loss function ... adamw
 \end{enumerate}
 
 \section{Introduction} \input{sections/introduction}
-\section{Problem Statement}
+\subsection{Problem Statement}
+
+Long documents are often difficult to understand and summarize. This is
+especially true of technical documents such as government reports where
+entities are often obscure institutions or less-well-known individuals. In
+literature, one way of dealing with this form of complexity is to introduce a
+knowledge graph at the beginning of the text. Famous examples include the works
+of Shakespeare where the main text of each play is preceded by  a
+\emph{dramatis personea} or \emph{cast of characters} (and their relations).
+
+<photo>
+
+In these settings, the role of the knowledge graph is to provide a structured and
+easy-to-refer-to characterisation of key entities in the document. For another
+example, in the complicated historical texts such as Hilary Mantel's ``The
+mirror and the light'', the contents page is followed by seven pages of
+structured knowledge-graph-like text.
+
+Our conjecture is that knowledge graphs can also help large language models
+generate better summaries of long documents.
+
+\subsection*{Knowledge Graphs (KGs) of Long Documents (LDs)}
+
+Knowledge graphs stand in contrast with long documents in that they are
+structured and concise.
+They form a significant reduction of the document to facts (expressed as
+relations between entities). They are structured and 
+
+In this project, we explore the role of knowledge graphs in generate a new dataset of knowledge graphs: one for each
+example in the GovReport dataset. 
+
 
 Augmenting large language models (LLMs) to handle long documents using
-retrieval-based methods is a highly active area of research. The key weakness
-of modern transformer-based LLMs is the token limit, or context window of
-attention. For instance, the context window of ChatGPT-3.5 is 4,096 tokens,
-while the average novel contains well over 100,000 tokens.
+retrieval-based methods is a highly active area of research. Since Vaswani et
+al 2017, transformers have become the default approach to natural language
+processing. Transformers have succeeded due to their ability to capture long
+range dependencies between tokens. They do so by abandoning the sequential
+approach of recurrent neural networks and instead allowing the decoder to
+attend to a complete graph over the encoded hidden states of tokens. The
+complexity of complete graphs is therefore quadratic in the number of tokens.
+The result is a powerful \emph{attention} mechanism, but one that is local and
+restricted to the \emph{context window}. The context window of ChatGPT-3.5 is
+4,096 tokens, while the average novel contains well over 100,000 tokens.
+Proprietory models such as GPT-4 and Claude provide users with models that
+extend beyond 100,000 tokens, but the question remains: what is the best way to
+achieve this?
 
 \texttt{Unlimiformer} \cite{bertsch2023unlimiformer}, a recent retrieval-based
 method for augmenting LLMs at the decoder level, is the first long-range
@@ -206,13 +245,13 @@ Finally, LlamaIndex, a framework for connecting data sources for LLMs, has a cla
 
 \subsection*{Unlimiformer}
 **Why unlimiformer, and what is it?**
-\texttt{Unlimiformer} 
 
 \paragraph{Retrieval-Augmentations of LLMs} Unlimiformer stands out for its novel
 integration of retrieval mechanisms directly into the Transformer architecture.
-This integration allows the model to dynamically access a large-scale, external
-datastore during both training and inference. This datastore is populated with
-encoded representations of a wide range of texts. The key advantage of this
+This integration allows the model to dynamically access large-scale, a
+document-specific external
+(FAISS) datastore during inference. This datastore is populated with
+encoded representations of the full input text. During training,  The key advantage of this
 approach is that it enables the model to augment its language generation
 capabilities with contextually relevant, externally stored information. This is
 particularly useful for tasks requiring deep, specific knowledge or for
