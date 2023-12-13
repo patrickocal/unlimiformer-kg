@@ -68,9 +68,9 @@ personea* or *cast of characters* (and their relations).
 \<photo\>
 
 In these settings, the role of the knowledge graph is to provide a structured
-and easy-to-refer-to characterisation of key entities in the document. For
-another example, in the complicated historical texts such as Hilary Mantel's
-"The mirror and the light", the contents page is followed by seven pages of
+and easy-to-refer-to characterisation of key entities in the document. A more
+extensive example is a complicated historical text such as Hilary Mantel's "The
+mirror and the light". There the contents page is followed by seven pages of
 structured knowledge-graph-like text.
 
 In this blog post, we explore how knowledge graphs (KGs) can applied to improve
@@ -82,8 +82,8 @@ long-document summarization that allows for documents of arbitrary length called
 
 Until recently long documents were already too long for the limited context
 window of attention of transformer models. Whilst the context window is still
-limited, various ways to extend the context window have emerged. A natural
-question then arises:
+limited, various ways to extend the context window have emerged. A natural, yet
+counter-intuitive, question then arises:
 
 <center>
 Will summarization improve if we *extend* or augment a document with its knowledge graph?
@@ -121,9 +121,12 @@ and passed to the language model to generate summaries. We specify each KG as a
 single sequence of subsequences: one subsequence for each relation triplet in
 the KG. We then integrate the collection of KGs with GovReport.
 
-The first dataset replaces each LD in GovReport with a KG. The second dataset
-replaces each LD with a single string that is the concatenation of the KG and
-LD.
+The [first
+dataset](https://huggingface.co/patrickocal/gov_report_kg/viewer/gov_report_kg)
+replaces each LD in GovReport with a KG. The [second
+dataset](https://huggingface.co/datasets/patrickocal/gov_report_kg/viewer/gov_re
+port_kg_comb) replaces each LD with a single string that is the concatenation of
+the KG and LD.
 
 ### Training BART+Unlimiformer {#training-bartunlimiformer .unnumbered}
 
@@ -189,17 +192,106 @@ previous exercise but with KGs as inputs instead of LDs. Thirdly, we
 repeat the previous exercise with string inputs of concatenated KGs and
 LDs (in this order).
 
-## Creating the KGs and Datasets {#creating-the-kgs-and-datasets .unnumbered}
+### Specifics of generating each KG {#generating-each-kg .unnumbered}
 
 Our baseline dataset is the Hugging Face version of GovReport
 [@huang2021efficient], a well-established LD summarization dataset with
 many practical applications. To generate the required datasets, we use
-REBEL [@huguet2021rebel], a pre-trained, end-to-end relation extraction
-model that can be found on Hugging Face here[^2], to perform one-shot
-named-entity recognition (NER) and relation extraction (RE). This is in
-contrast to the two-step approach that we also experimented with
+[REBEL](**paper url**), a pre-trained model that can be found on [Hugging
+Face](^2), to perform one-shot named-entity recognition (NER) and relation
+extraction (RE). This end-to-end approach stands in contrast to the
+traditional two-step approach (eg. Spacy and Stanford ...) We explored
+some of the alternatives to REBEL and discuss those in more detail in the
+[appendix](#appendix)
 
-### GovReport {#govreport .unnumbered}
+##### (fix refs ^)
+
+#### REBEL {#rebel .unnumbered}
+
+We choose REBEL because at the time of writing it is the [top performing](link)
+end-to-end relation extractor on the [DocRED dataset](DocRED paper by Yao et al
+[@yao2019DocRED]). Moreover, it is more straightforward and fast to implement
+and produced better KGs than the alternatives we tried. Moreover, with more
+time to develop our framework, we believe that REBEL would be well-suited to
+integration with Unlimiformer to generating KGs at inference time. (The LD
+needs to be split into chunks for both KG and summarization, and Unlimiformer is
+designed to capture hidden encodings of inputs, so an integration of this form
+would be very natural. We leave this extension to future work.)
+
+[comment]: # (
+? MORE on the generation methodology here: how are triplets extracted? Does it use an LLM such as BART/BERT ?)
+[comment]: # (Pretrained REBEL currently yields the best joint entity and
+relation extraction NER and RE results compared with the benchmark among all
+models sampled, achieving a relation F1 score of 47.1[^4].)
+
+Given the time and compute resources available to us, through trial and error,
+we found that extracting three or four head-relation-tail triplets per 128-token
+chunk is optimal. We set the span_length, **parameter**, `num_beams` parameters
+to control extraction. Recall that `num_beams` is the maximum number of
+candidates (in this case relation triplets) that the attention mechanism will hold over
+the `span_length` of text, which is in this case 128 tokens or approximately the
+length of a single paragraph.
+
+[code example here]
+
+[comment]: # ( We split the text into 128
+token chunks as it is approximately the length of one paragraph. Through visual
+inspection, we find that there are typically 3 triples in each paragraph.
+Moreover, since REBEL employs beam search, the number of triples must be less
+than or equal to the number of beams. We determine that the optimal number of
+beams, based on runtime, is 3 beams, which means the maximum triples per chunk
+would be 3.)
+
+**put the following comment the figure caption or colab (it's more a comment
+for marks than a general interest)**
+Once the triplets are extracted, we use NetworkX to create a directed
+graph, and MatPlotLib to visualize and plot the results. Below is
+a sample image of a knowledge graph produced from a gold summary.
+
+[Insert Image/Plot of KG]
+
+[comment]: # (
+\*\*Why extract triplets (and not extract triplets typed)?\*\*
+)
+
+
+#### BART-specific Knowledge Graph representation
+We chose to use the beginning of sequence (BOS, '\<s\>') and end of
+sequence (EOS, '\</s\>') tokens to separate triples in our knowledge
+graphs (KGs) with the intent of aligning with BART's understanding of
+sequence boundaries, this approach has specific implications:
+
+1. **Clear Segmentation of Information**: Using BOS and EOS tokens
+to delimit triples in the KG makes each triple a distinct segment from
+the model's perspective. This is beneficial since we want the model to
+treat each triple as an independent unit of information.
+
+2. **Facilitating Attention Across Segments**: This segmentation
+should help the model's attention mechanism focus on each triple
+individually, potentially enhancing the model's ability to capture the
+nuances of each relationship within the KG.
+
+[comment]: # (
+3\. **Model Adaptation to Structured Inputs**: Given that BART is
+designed to handle structured text, using BOS and EOS tokens in this way
+could aid the model in better understanding and generating summaries
+based on the structured nature of KGs. It aligns with the model's
+pre-existing mechanisms for processing text.)
+
+4. **Potential for Contextual Integration**: While each triple is treated as a
+separate sequence, the overall sequence-of-subsequences structure still allows
+BART to integrate these segments contextually. The model can still learn to
+understand the KG as a whole, even though it processes each triple individually.
+
+[comment]: # (
+5. **Efficient Processing of Smaller Units**: By breaking down the
+KG into smaller segments, the model might process each unit more
+efficiently, especially if the triples are concise and the relationships
+within them are straightforward.)
+
+### Specifics of augmenting the GovReport dataset {#data .unnumbered}
+
+#### GovReport {#govreport .unnumbered}
 
 The GovReport dataset is a well-established long-document summarization
 datasets that is both publicly available and ready-to-use. We use it
@@ -207,54 +299,8 @@ because it is a large and popluar dataset that has many real-world
 applications. The Hugging Face GovReport [^3] dataset has an approximate
 $90/5/5\%$ split of approximately $19.5$k document-summary pairs.
 
-### REBEL {#rebel .unnumbered}
 
-We use REBEL because it is end-to-end (it finds entities and relations
-simultaneously), open-source, and easy to implement using Hugging Face.
-Additionally, as per the DocRED paper by Yao et al [@yao2019DocRED],
-pretrained REBEL currently yields the best joint entity and relation
-extraction (NER and RE) results compared with the benchmark among all
-models sampled, achieving a relation F1 score of 47.1[^4].
 
-Since the pre-trained REBEL model has a token limit, we split the LD
-into 128-token chunks before extracting 3 head-relation-tail triplets
-from each chunk. We split the text into 128 token chunks as it is
-approximately the length of one paragraph. Through visual inspection, we
-find that there are typically 3 triples in each paragraph. Moreover,
-since REBEL employs beam search, the number of triples must be less than
-or equal to the number of beams. We determine that the optimal number of
-beams, based on runtime, is 3 beams, which means the maximum triples per
-chunk would be 3.
-
-Once the triplets are extracted, we use NetworkX to create a directed
-graph, and employ MatPlotLib to visualize and plot the results. Below is
-a sample image of a knowledge graph produced from a gold summary.
-
-\[Insert Image/Plot of KG\]
-
-\*\*Why extract triplets (and not extract triplets typed)?\*\*
-
-### Alternatives to REBEL {#alternatives-to-rebel .unnumbered}
-
-Other means of performing NER and RE we considered include spaCy-LLM,
-DyGIE++, and LlamaIndex. spaCy-LLM[^5] is a package that integrates LLMs
-into natural language processing (NLP) pipelines provided by spaCy, an
-industry-standard NLP library. In particular, its built-in
-`spacy.REL.v1`[^6] component supports RE with both zero-shot and
-few-shot prompting, but relies on an upstream NER component for entity
-extraction.
-
-DyGIE++ is an RE component that refines and scores text spans designed
-to capture both intra-sentence and cross-sentence context. We cloned the
-code from the official GitHub repository linked here[^7] and attempted
-to replicate the process of training a model for RE, but were
-unsuccessful due to technical difficulties.
-
-Finally, LlamaIndex, a framework for connecting data sources for LLMs,
-has a class called `KnowledgeGraphIndex`[^8] which is compatible with
-FAISS, the datastore that `unlimiformer` uses to conduct $k$-NN searches
-of top-level hidden state encodings, which would simplify our task of
-NER and RE.
 
 ## Training {#training .unnumbered}
 
@@ -278,16 +324,15 @@ remains: what is the best way to achieve this?
 
 #### Retrieval-Augmentations of LLMs
 
-Unlimiformer stands out for its novel integration of retrieval
-mechanisms directly into the Transformer architecture. This integration
-allows the model to dynamically access large-scale, a document-specific
-external (FAISS) datastore during inference. This datastore is populated
-with encoded representations of the full input text. During training,
-The key advantage of this approach is that it enables the model to
-augment its language generation capabilities with contextually relevant,
-externally stored information. This is particularly useful for tasks
-requiring deep, specific knowledge or for improving the model's ability
-to stay updated with recent information.
+Unlimiformer stands out for its novel integration of retrieval mechanisms
+directly into the Transformer architecture. This integration allows the model to
+dynamically access large-scale, a document-specific external (FAISS) datastore
+during inference. This datastore is populated with encoded representations of
+the full input text. The key advantage of this approach is that it enables
+the model to augment its language generation capabilities with contextually
+relevant, externally stored information. This is useful for tasks
+requiring deep, specific knowledge or for improving the model's ability to stay
+updated with recent information.
 
 #### Comparison with Other Methods (Datastore Access)
 
@@ -302,20 +347,19 @@ which can introduce complexity and inefficiency. Unlimiformer's
 approach, therefore, represents a significant advancement in making
 retrieval-augmented models more streamlined and effective.
 
-These points highlight Unlimiformer's innovative approach to enhancing
+This highlights Unlimiformer's innovative approach to enhancing
 LLMs with retrieval-augmented capabilities, particularly its unique
 internal mechanism for accessing and integrating external datastores.
 
 ### BART {#bart .unnumbered}
 
-We focused on training the `facebook/bart-base` model. Although there
-are by now many more advanced models, and many of these (e.g. Llama) are
-compatible with , BART provides the main benchmark in the `unlimiformer`
-paper [@bertsch2023unlimiformer]. In addition, each model treats special
-tokens slightly differently and, as we shall see, the way tokens are
+We focused on training the `facebook/bart-base` model (henceforth BART).
+Although there now many more advanced models, and many of these (e.g. Llama)
+are compatible with Unlimiforemer, BART provides the main benchmark in the
+`unlimiformer` paper [@bertsch2023unlimiformer]. It has a context window of
+1024 tokens, anIn addition, each model treats
+special tokens slightly differently and, as we shall see, the way tokens are
 treated is important to the resulting training on KGs.
-
-### How we use BART for training {#how-we-use-bart-for-training .unnumbered}
 
 BART, like other transformer-based models, is considered adept at
 handling structured inputs due to several key features of its
@@ -327,6 +371,9 @@ not as explicitly defined. Examples of structured inputs include:
 databases or tables; XML or JSON data, where elements are nested and
 have defined relationships; Knowledge graphs, where information is
 represented as entities and relationships (triples).
+
+### How we use BART for training {#how-we-use-bart-for-training .unnumbered}
+
 
 ### Appropriateness of the BART Model {#appropriateness-of-the-bart-model .unnumbered}
 
@@ -381,40 +428,8 @@ In summary, BART's ability to process and understand the entire input
 sequence contextually, along with its adaptability and pre-training on
 diverse data, makes it well-suited for handling structured inputs. This
 capability allows it to effectively process and generate outputs based
-on inputs like knowledge graphs, tables, or other structured data forms.
-We chose to use the beginning of sequence (BOS, '\<s\>') and end of
-sequence (EOS, '\</s\>') tokens to separate triples in our knowledge
-graphs (KGs) with the intent of aligning BART's understanding of
-sequence boundaries, this approach has specific implications:
+on inputs like knowledge graphs.
 
-1\. \*\*Clear Segmentation of Information\*\*: Using BOS and EOS tokens
-to delimit triples in the KG makes each triple a distinct segment from
-the model's perspective. This is beneficial since we want the model to
-treat each triple as an independent unit of information since we expect
-our GovReport KGs to be such that the relationships within triples
-contain key information.
-
-2\. \*\*Facilitating Attention Across Segments\*\*: This segmentation
-should help the model's attention mechanism focus on each triple
-individually, potentially enhancing the model's ability to capture the
-nuances of each relationship within the KG.
-
-3\. \*\*Model Adaptation to Structured Inputs\*\*: Given that BART is
-designed to handle structured text, using BOS and EOS tokens in this way
-could aid the model in better understanding and generating summaries
-based on the structured nature of KGs. It aligns with the model's
-pre-existing mechanisms for processing text.
-
-4\. \*\*Potential for Contextual Integration\*\*: While each triple is
-treated as a separate sequence, the overall structure still allows the
-model to integrate these segments contextually. The model can learn to
-understand the KG as a whole, even though it processes each triple
-individually.
-
-5\. \*\*Efficient Processing of Smaller Units\*\*: By breaking down the
-KG into smaller segments, the model might process each unit more
-efficiently, especially if the triples are concise and the relationships
-within them are straightforward.
 
 In this context, the slower training times you observed might not be due
 to the tokenization strategy per se but could involve other factors such
@@ -508,3 +523,27 @@ performance of both models, potentially narrowing these gaps.
 [^7]: https://github.com/dwadden/dygiepp
 
 [^8]: https://docs.llamaindex.ai/en/stable/examples/index_structs/knowledge_graph/KnowledgeGraphDemo.html
+
+## Appendix {#appendix .unnumbered}
+
+### Alternatives to REBEL {#alternatives-to-rebel .unnumbered}
+
+Other means of performing NER and RE we considered include spaCy-LLM,
+DyGIE++, and LlamaIndex. spaCy-LLM[^5] is a package that integrates LLMs
+into natural language processing (NLP) pipelines provided by spaCy, an
+industry-standard NLP library. In particular, its built-in
+`spacy.REL.v1`[^6] component supports RE with both zero-shot and
+few-shot prompting, but relies on an upstream NER component for entity
+extraction.
+
+DyGIE++ is an RE component that refines and scores text spans designed
+to capture both intra-sentence and cross-sentence context. We cloned the
+code from the official GitHub repository linked here[^7] and attempted
+to replicate the process of training a model for RE, but were
+unsuccessful due to technical difficulties.
+
+Finally, LlamaIndex, a framework for connecting data sources for LLMs,
+has a class called `KnowledgeGraphIndex`[^8] which is compatible with
+FAISS, the datastore that `unlimiformer` uses to conduct $k$-NN searches
+of top-level hidden state encodings, which would simplify our task of
+NER and RE.
