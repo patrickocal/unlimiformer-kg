@@ -37,7 +37,7 @@ data/RQ1.xlsx
 **/*.fls
 **/*.out
 **/*.fdb_latexmk
-**/*.synctex.*
+**/*synctex*
 # apple related
 **/*.DS_Store
 # python related

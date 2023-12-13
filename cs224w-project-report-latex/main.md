@@ -1,22 +1,11 @@
----
-bibliography:
-- sections/references.bib
----
+<center>
+# Summarizing Knowledge-Graph-Augmented Long Documents
+</center>
 
-::: center
-**Project Report**\
-**Long Document Summarization:**\
-**Augmenting Unlimiformer with Knowledge Graphs[^1]**\
+By _Patrick O'Callaghan_, _Sheel Sansare_, _Tristan Wang_ as part of the Stanford
+CS224W Winter 2023 course project
 
-::: {#tab:my_label}
-  --------------------- --------------- --------------
-   Patrick O'Callaghan   Sheel Sansare   Tristan Wang
-        (patocal)          (ssansa2)      (aawang99)
-  --------------------- --------------- --------------
-:::
-
-[]{#tab:my_label label="tab:my_label"}
-:::
+Our colaboratory notebook provides some additional detail of our codebase.
 
 ## To-Do List (Remove When Done) {#to-do-list-remove-when-done .unnumbered}
 
@@ -25,22 +14,22 @@ bibliography:
 2.  Submit test results to Scrolls.
 
 3.  Present key result that length of summary is strongly dependent on
-    input: LD \< KG + LD \< KG. Explain why this is.
+    input: LD < KG + LD < KG. Explain why this is.
 
 4.  Upload models to Hugging Face.
 
 5.  Figures
 
-6.  Shakespeare image with KG / dramatis personae.
+6.  Shakespeare image
 
-7.  The Mirror and the Light (Hilary Mantel).
+[comment]: # (7.  The Mirror and the Light (Hilary Mantel).)
 
 8.  Sheel's KG.
 
 9.  Plot distribution of LD, KG, and summary sizes for the 3 splits.
 
 10. Graph convergence of summary length (number of tokens) to 90 for
-    LDs, 750 for combined, 800+ for KGs.
+    LDs, 750 for combined, 800+ for KGs. <see wandb>
 
 11. Training / loss and other graphs from the training. we need to
     discuss training in more detail eg what is the loss function? or how
@@ -55,96 +44,116 @@ bibliography:
 12. Table of results comparing R1, R2, RL, BERTScore F1 for the 3
     experiments. Bold the best performers.
 
-# Introduction {#introduction .unnumbered}
+13. Acknowledge any potential weaknesses in our experimental approach:
+    13.1 eg there
+    may be an advantage to the combined model. What would we do differently
+    with more time: fine-tune for longer summaries using the other two datasets
+    (LD and KG alone). Then repeat to see if KG+LD still wins. I don't think
+    this is too much of a problem as, if there is no improvement to be made,
+    training will quickly halt.
+    13.2 training involves truncating the long document to just under 16.5k
+    tokens. By putting the KG at the front of the text, we are truncating more
+    of the LD. For the longest of documents, the KGs are upto 50k tokens long.
 
-In this blog post, we explore how knowledge graphs (KGs) can improve be
-applied to improve the accuracy of the `unlimiformer` long-range
-transformer for the task of long document (LD) summarization.
-
-## Problem Statement {#problem-statement .unnumbered}
+## Introduction {#introduction .unnumbered}
 
 Long documents are often difficult to understand and summarize. This is
-especially true of technical documents such as government reports where
-entities are often obscure institutions or less-well-known individuals.
-In literature, one way of dealing with this form of complexity is to
-introduce a knowledge graph at the beginning of the text. Famous
-examples include the works of Shakespeare where the main text of each
-play is preceded by a *dramatis personea* or *cast of characters* (and
-their relations).
+especially true of technical documents such as government reports where entities
+are often obscure institutions or less-well-known individuals. Literature
+provides one way of dealing with this form of complexity: _introduce a knowledge
+graph at the beginning of the text_. Famous examples include the works of
+Shakespeare where the main text of each play is preceded by a *dramatis
+personea* or *cast of characters* (and their relations).
 
 \<photo\>
 
-In these settings, the role of the knowledge graph is to provide a
-structured and easy-to-refer-to characterisation of key entities in the
-document. For another example, in the complicated historical texts such
-as Hilary Mantel's "The mirror and the light", the contents page is
-followed by seven pages of structured knowledge-graph-like text.
+In these settings, the role of the knowledge graph is to provide a structured
+and easy-to-refer-to characterisation of key entities in the document. For
+another example, in the complicated historical texts such as Hilary Mantel's
+"The mirror and the light", the contents page is followed by seven pages of
+structured knowledge-graph-like text.
 
-Our conjecture is that knowledge graphs can also help large language
-models generate better summaries of long documents.
+In this blog post, we explore how knowledge graphs (KGs) can applied to improve
+the summarization of long documents. To do so, we exploit a recent innovation in
+long-document summarization that allows for documents of arbitrary length called
+[unlimiformer](https://arxiv.org/abs/2305.01625).
 
-## Knowledge Graphs (KGs) of Long Documents (LDs) {#knowledge-graphs-kgs-of-long-documents-lds .unnumbered}
+### Problem Statement {#problem-statement .unnumbered}
+
+Until recently long documents were already too long for the limited context
+window of attention of transformer models. Whilst the context window is still
+limited, various ways to extend the context window have emerged. A natural
+question then arises:
+
+<center>
+Will summarization improve if we *extend* or augment a document with its knowledge graph?
+</center>
+
+Our conjecture is that augmenting long documents with their knowledge graphs
+will indeed help large language models generate better summaries of long
+documents. Our goal is therefore to build the right datasets, choose the right
+architecture and design suitable experiments that will enable us measure any
+possible impact of including a "cast of entities" (and their relations) at the
+beginning of the document.
+
+### Knowledge Graphs (KGs) of Long Documents (LDs) {#knowledge-graphs-kgs-of-long-documents-lds .unnumbered}
 
 Knowledge graphs stand in contrast with long documents in that they are
-structured and concise. They form a significant reduction of the
-document to facts (expressed as relations between entities).
+structured and concise. They form a significant reduction of the document to
+facts (expressed as relations between entities).
 
-We choose the REBEL end-to-end relation extractor to generate our
-knowledge graphs.
+We choose the REBEL end-to-end relation extractor to generate our knowledge
+graphs.
 
-## Two new KG datasets {#two-new-kg-datasets .unnumbered}
+### Two new KG datasets {#two-new-kg-datasets .unnumbered}
 
-In this project, we generate a new collection of knowledge graphs: one
-for each example in the GovReport dataset. This is a significant
-undertaking for two reasons:
+In this project, we generate a new collection of knowledge graphs: one for each
+example in the GovReport dataset. This is a significant undertaking for two
+reasons:
 
-1.  there are approximately 19,500 documents in GovReport;
+1. there are approximately 19,500 documents in GovReport;
 
-2.  the variance in the length of documents is significant and this
-    leads to major hardware management issues during generation.
+2. the variance in the length of documents is significant and this leads to
+major hardware management issues during generation.
 
-There are significant design choices relating to how relations are
-specified and passed to the language model to generate summaries. We
-specify each KG as a single sequence of subsequences: one subsequence
-for each relation triplet in the KG. We then integrate the collection of
-KGs with GovReport.
+There are significant design choices relating to how relations are specified
+and passed to the language model to generate summaries. We specify each KG as a
+single sequence of subsequences: one subsequence for each relation triplet in
+the KG. We then integrate the collection of KGs with GovReport.
 
-The first dataset replaces each LD in GovReport with a KG. The second
-dataset replaces each LD with a single string that is the concatenation
-of the KG and LD.
+The first dataset replaces each LD in GovReport with a KG. The second dataset
+replaces each LD with a single string that is the concatenation of the KG and
+LD.
 
-## Training BART+Unlimiformer {#training-bartunlimiformer .unnumbered}
+### Training BART+Unlimiformer {#training-bartunlimiformer .unnumbered}
 
-`Unlimiformer` [@bertsch2023unlimiformer], a recent retrieval-based
-method for augmenting LLMs at the decoder level, is the first long-range
-transformer to support unlimited length inputs. The key innovation of
-`unlimiformer` is to create a datastore of encodings which correspond to
-each token in the original document, and use the $k$-nearest neighbors
-($k$-NN) algorithm to select the $k$ most relevant tokens in the
-datastore during decoding.
+[Unlimiformer](__) is a recent retrieval-based method for augmenting LLMs at
+the decoder level, is the first long-range transformer to support unlimited
+length inputs. The key innovation of unlimiformer is to create a datastore of
+encodings which correspond to each token in the original document, and use the
+$k$-nearest neighbors ($k$-NN) algorithm to select the $k$ most relevant tokens
+in the datastore during decoding.
 
-## Our experiments {#our-experiments .unnumbered}
+### Our experiments {#our-experiments .unnumbered}
 
 Our experiments focus on comparing the summary outputs across the three
-datasets: the original GovReports, the GovReportsKG and the
-GovReportsKG+LD. Our initial findings reveal significant differences
-between the summaries generated from LDs vs the new datasets. The
-default BART model produces summaries of approximately 130 tokens with a
-typical range of 100 to and 150 tokens. In contrast, the KGs and KG+LDs
-generated summaries of approximately 900 tokens with a typical range of
-600 to 1100. The target/golden summaries for GovReport are closer to the
-latter with the number of tokens being 600 on average with a typical
-range of between 400 and 1000.
+datasets: the original GovReports, the GovReportsKG and the GovReportsKG+LD. Our
+initial findings reveal significant differences between the summaries generated
+from LDs vs the new datasets. The default BART model produces summaries of
+approximately 130 tokens with a typical range of 100 to and 150 tokens. In
+contrast, the KGs and KG+LDs generated summaries of approximately 900 tokens
+with a typical range of 600 to 1100. The target/golden summaries for GovReport
+are closer to the latter with the number of tokens being 600 on average with a
+typical range of between 400 and 1000.
 
 \<table with number of tokens similar to Unlimiformer Scrolls?\>
 
-We explore the cause of these differences and refine our experiments to
-try and control for length of summary. We do so by re-initializing
-training with a model that is fine-tuned to produce longer summaries.
-The goal is to create a fair horse race to compare the performance
-across the three datasets.
+We explore the cause of these differences and refine our experiments to control
+for length of summary. We do so by re-initializing training with a model that
+is fine-tuned to produce longer summaries. The goal is to create a fair "horse
+race" to compare summarization performance across the three datasets.
 
-## Overview of our final results {#overview-of-our-final-results .unnumbered}
+### Overview of our final results {#overview-of-our-final-results .unnumbered}
 
 Once we control for length of summary, our final results are in line
 with our initial hypothesis. We summarise these results in
@@ -163,12 +172,12 @@ reference="fig:summary-of-results-intro"}.
   : Caption
 :::
 
-We find that the best summaries are produced by the combined KG+LD
+We find that the best summaries are indeed produced by the combined KG+LD
 input. This is followed by LDs and then finally KGs. There is a
 significant difference in performance between the three. All our results
 are for the validation set.
 
-# Methodology {#methodology .unnumbered}
+## Methodology {#methodology .unnumbered}
 
 We use
 
@@ -180,7 +189,7 @@ previous exercise but with KGs as inputs instead of LDs. Thirdly, we
 repeat the previous exercise with string inputs of concatenated KGs and
 LDs (in this order).
 
-# Creating the KGs and Datasets {#creating-the-kgs-and-datasets .unnumbered}
+## Creating the KGs and Datasets {#creating-the-kgs-and-datasets .unnumbered}
 
 Our baseline dataset is the Hugging Face version of GovReport
 [@huang2021efficient], a well-established LD summarization dataset with
@@ -190,7 +199,7 @@ model that can be found on Hugging Face here[^2], to perform one-shot
 named-entity recognition (NER) and relation extraction (RE). This is in
 contrast to the two-step approach that we also experimented with
 
-## GovReport {#govreport .unnumbered}
+### GovReport {#govreport .unnumbered}
 
 The GovReport dataset is a well-established long-document summarization
 datasets that is both publicly available and ready-to-use. We use it
@@ -198,7 +207,7 @@ because it is a large and popluar dataset that has many real-world
 applications. The Hugging Face GovReport [^3] dataset has an approximate
 $90/5/5\%$ split of approximately $19.5$k document-summary pairs.
 
-## REBEL {#rebel .unnumbered}
+### REBEL {#rebel .unnumbered}
 
 We use REBEL because it is end-to-end (it finds entities and relations
 simultaneously), open-source, and easy to implement using Hugging Face.
@@ -225,7 +234,7 @@ a sample image of a knowledge graph produced from a gold summary.
 
 \*\*Why extract triplets (and not extract triplets typed)?\*\*
 
-## Alternatives to REBEL {#alternatives-to-rebel .unnumbered}
+### Alternatives to REBEL {#alternatives-to-rebel .unnumbered}
 
 Other means of performing NER and RE we considered include spaCy-LLM,
 DyGIE++, and LlamaIndex. spaCy-LLM[^5] is a package that integrates LLMs
@@ -247,9 +256,9 @@ FAISS, the datastore that `unlimiformer` uses to conduct $k$-NN searches
 of top-level hidden state encodings, which would simplify our task of
 NER and RE.
 
-# Training {#training .unnumbered}
+## Training {#training .unnumbered}
 
-## Unlimiformer {#unlimiformer .unnumbered}
+### Unlimiformer {#unlimiformer .unnumbered}
 
 \*\*Why unlimiformer, and what is it?\*\* Augmenting large language
 models (LLMs) to handle long documents using retrieval-based methods is
@@ -297,7 +306,7 @@ These points highlight Unlimiformer's innovative approach to enhancing
 LLMs with retrieval-augmented capabilities, particularly its unique
 internal mechanism for accessing and integrating external datastores.
 
-## BART {#bart .unnumbered}
+### BART {#bart .unnumbered}
 
 We focused on training the `facebook/bart-base` model. Although there
 are by now many more advanced models, and many of these (e.g. Llama) are
@@ -306,7 +315,7 @@ paper [@bertsch2023unlimiformer]. In addition, each model treats special
 tokens slightly differently and, as we shall see, the way tokens are
 treated is important to the resulting training on KGs.
 
-## How we use BART for training {#how-we-use-bart-for-training .unnumbered}
+### How we use BART for training {#how-we-use-bart-for-training .unnumbered}
 
 BART, like other transformer-based models, is considered adept at
 handling structured inputs due to several key features of its
@@ -319,7 +328,7 @@ databases or tables; XML or JSON data, where elements are nested and
 have defined relationships; Knowledge graphs, where information is
 represented as entities and relationships (triples).
 
-## Appropriateness of the BART Model {#appropriateness-of-the-bart-model .unnumbered}
+### Appropriateness of the BART Model {#appropriateness-of-the-bart-model .unnumbered}
 
 When training our model, we chose to feed the relational data of our KGs
 as tokens into `unlimiformer`, as opposed to embedding the KGs as
@@ -330,7 +339,7 @@ as possible within the dataset.
 
 \*\*Work to train models individually.\*\*
 
-### Background on BART {#background-on-bart .unnumbered}
+#### Background on BART {#background-on-bart .unnumbered}
 
 \*\*Structured Inputs
 
@@ -419,7 +428,7 @@ be to ensure that the rest of your training pipeline, including data
 preprocessing and model fine-tuning, is optimized to leverage this
 structure effectively.
 
-# Results {#results .unnumbered}
+## Results {#results .unnumbered}
 
 \*\*How did our model perform compared to the baseline? Explanation?\*\*
 
@@ -480,7 +489,7 @@ alignment (LD) or on covering key points and maintaining structure (KG).
 Continued training and further optimization could enhance the
 performance of both models, potentially narrowing these gaps.
 
-# Conclusion {#conclusion .unnumbered}
+## Conclusion {#conclusion .unnumbered}
 
 \*\*Do we recommend using KGs for LD summarization?\*\*
 
