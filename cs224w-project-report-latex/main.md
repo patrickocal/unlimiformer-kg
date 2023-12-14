@@ -455,6 +455,19 @@ be to ensure that the rest of your training pipeline, including data
 preprocessing and model fine-tuning, is optimized to leverage this
 structure effectively.
 
+### Metrics
+When it comes to summarizing long documents, metrics like ROUGE and BertScore are critical. They offer a standardized, quantitative way to assess the performance of summarization algorithms.
+
+#### ROUGE Metrics
+- **ROUGE-1** measures the overlap of unigrams (individual words) between the system-generated summary and a set of reference summaries. It captures the surface-level accuracy, essentially checking if the key terms appear in the summary.
+- **ROUGE-2** measures the overlap of unigrams (individual words) between the system-generated summary and a set of reference summaries. It captures the surface-level accuracy, essentially checking if the key terms appear in the summary.
+- **ROUGE-L** focuses on the longest common subsequence between the generated summary and the reference. It can recognize longer phrases that appear in both texts, which reflects a higher level of semantic similarity.
+- **ROUGE Geometric Mean** is a composite score that combines ROUGE-1, ROUGE-2, and ROUGE-L (sometimes including others, like ROUGE-SU4) by calculating their geometric mean. It balances the contribution of each metric, offering a more holistic view of the quality of the summary.
+
+#### BertScore
+- **BertScore F1** leverages the power of BERT. BertScore computes the similarity of each token in the candidate summary to each token in the reference summary and vice versa, resulting in precision and recall scores. The F1 score is the harmonic mean of these two, providing a balance that considers both the summary's coverage of content and the content's relevance to the summary.
+
+
 ## Results 
 
 \*\*How did our model perform compared to the baseline? Explanation?\*\*
