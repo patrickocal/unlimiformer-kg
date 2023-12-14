@@ -128,6 +128,8 @@ dataset](https://huggingface.co/datasets/patrickocal/gov_report_kg/viewer/gov_re
 port_kg_comb) replaces each LD with a single string that is the concatenation of
 the KG and LD.
 
+![Inputs Table](images/input_stats.png)
+
 ### Training BART+Unlimiformer 
 
 [Unlimiformer](__) is a recent retrieval-based method for augmenting LLMs at
@@ -169,7 +171,7 @@ with a typical range of 600 to 1100. The target/golden summaries for GovReport
 are closer to the latter with the number of tokens being 600 on average with a
 typical range of between 400 and 1000.
 
-\<table with number of tokens similar to Unlimiformer Scrolls?\>
+![Initial Results Table](images/initial_results_stats.png)
 
 We explore the cause of these differences and refine our experiments to control
 for length of summary. We do so by re-initializing training with a model that
@@ -183,17 +185,7 @@ with our initial hypothesis. We summarise these results in
 [\[fig:summary-of-results-intro\]](#fig:summary-of-results-intro){reference-type="ref"
 reference="fig:summary-of-results-intro"}.
 
-\<table\>
-
-::: 
-  --- --- -- -- --
-   2   3        
-                
-                
-  --- --- -- -- --
-
-  : Caption
-:::
+![Final Results Table](images/final_results_stats.png)
 
 We find that the best summaries are indeed produced by the combined KG+LD
 input. This is followed by LDs and then finally KGs. There is a
@@ -268,7 +260,7 @@ Once the triplets are extracted, we use NetworkX to create a directed
 graph, and MatPlotLib to visualize and plot the results. Below is
 a sample image of a knowledge graph produced from a gold summary.
 
-[Insert Image/Plot of KG]
+![KG Plot](images/kg.png)
 
 [comment]: # (
 \*\*Why extract triplets (and not extract triplets typed)?\*\*
