@@ -55,43 +55,69 @@ Our colaboratory notebook provides some additional detail of our codebase.
     tokens. By putting the KG at the front of the text, we are truncating more
     of the LD. For the longest of documents, the KGs are upto 50k tokens long.
 
+| Right | Left | Default | Center |
+|------:|:-----|---------|:------:|
+|   12  |  12  |    12   |    12  |
+|  123  |  123 |   123   |   123  |
+|    1  |    1 |     1   |     1  |
+
+Here is an example citation in Markdown [[Cockett, 2022]](https://doi.org/10.5281/zenodo.6476040).
+
 ## Introduction 
 
-Long documents are often difficult to understand and summarize. This is
-especially true of technical documents such as government reports where entities
-are often obscure institutions or less-well-known individuals. Literature
-provides one way of dealing with this form of complexity: _introduce a knowledge
-graph at the beginning of the text_. Famous examples include the works of
-Shakespeare where the main text of each play is preceded by a *dramatis
-personea* or *cast of characters* (and their relations).
+In this blog post, we explore how knowledge graphs can applied to improve
+the summarization of long documents. Long documents are often difficult
+to understand and summarize. This is especially true of technical documents
+such as government reports where entities are often obscure institutions or
+less-well-known individuals. In literature, one way of dealing with this
+complexity is to introduce a _dramatis personae_, or cast of characters, at the
+beginning of the text. Famous examples include the works of Shakespeare where
+the main text of each play is preceded by a *cast of characters* (and their
+relations) of the form:
 
 \<photo\>
 
-In these settings, the role of the knowledge graph is to provide a structured
-and easy-to-refer-to characterisation of key entities in the document. A more
-extensive example is a complicated historical text such as Hilary Mantel's "The
+We interpret the cast of characters as a knowledge graph and look at how large
+language models can be trained to summarize technical, long documents that
+are augmented with knowledge graphs. To do so, we exploit a recent innovation
+in text summarization that allows for documents of arbitrary length called
+[unlimiformer](https://arxiv.org/abs/2305.01625).
+
+[comment]: # (
+A more extensive example is a complicated historical text such as Hilary Mantel's "The
 mirror and the light". There the contents page is followed by seven pages of
 structured knowledge-graph-like text.
 
-In this blog post, we explore how knowledge graphs (KGs) can applied to improve
+In this blog post, we explore how knowledge graphs can applied to improve
 the summarization of long documents. To do so, we exploit a recent innovation in
 long-document summarization that allows for documents of arbitrary length called
-[unlimiformer](https://arxiv.org/abs/2305.01625).
+
+that provides a 
+structured and easy-to-refer-to characterisation of key entities in the 
+document. Structured text differs from the free-form text of a typical
+document.
+
+We hypothesize that, much like how a cast of characters can aid a reader in understanding a complicated novel by highlighting key relationships between characters, knowledge graphs can help large language models generate better summaries of long documents.
+
+The issue is that augmenting a long document with a knowledge graph involves
+making a long document even longer.
+
+
+)
+
 
 ### Problem Statement 
 
 Until recently long documents were already too long for the limited context
-window of attention of transformer models. Whilst the context window is still
-limited, various ways to extend the context window have emerged. A natural, yet
-counter-intuitive, question then arises:
+window of attention of transformer models (the leading technology for generating
+summaries). Whilst the context window is still limited, various ways to extend
+it have emerged and this leads us to the following question:
 
-<center>
+[center]
 Will summarization improve if we *extend* or augment a document with its knowledge graph?
-</center>
+[center]
 
-Our conjecture is that augmenting long documents with their knowledge graphs
-will indeed help large language models generate better summaries of long
-documents. Our goal is therefore to build the right datasets, choose the right
+Our task is therefore to build the right datasets, choose the right
 architecture and design suitable experiments that will enable us measure any
 possible impact of including a "cast of entities" (and their relations) at the
 beginning of the document.
@@ -128,6 +154,7 @@ dataset](https://huggingface.co/datasets/patrickocal/gov_report_kg/viewer/gov_re
 port_kg_comb) replaces each LD with a single string that is the concatenation of
 the KG and LD.
 
+
 <!-- ![Inputs Table](images/input_stats.png) -->
 
 |       | Average                 | Min             | Max                      | Std Dev              |
@@ -138,36 +165,34 @@ the KG and LD.
 
 Input Token Lengths (Train/Validation/Test)
 
+![Inputs Table](images/input_stats.png)
+|       | Input Token Lengths (Train/Dev/Test) |       |       |         |
+|-------|---------------------------------------------|-------|-------|---------|
+|       | Average                                     | Min   | Max   | Std Dev |
+| LD    | (9617/10044/9209)                          | (74/237/561) | (303192/69300/38735) | (7644/7106/5446) |
+| KG    | (2820/2902/2766)                           | (121/401/223) | (63988/13049/12728) | (2013/1782/1625) |
+| KG+LD | (13203/13854/12829)                        | (487/1541/825) | (313947/77692/58815) | (9753/9065/7525) |
 
+[comment]: # (
+### Training a large language model
 
-### Training BART+Unlimiformer 
+[rewrite]
+Augmenting large language models (LLMs to handle long documents using
+retrieval-based methods is a highly active area of research.
 
-[Unlimiformer](__) is a recent retrieval-based method for augmenting LLMs at
-the decoder level, is the first long-range transformer to support unlimited
-length inputs. The key innovation of unlimiformer is to create a datastore of
-encodings which correspond to each token in the original document, and use the
-$k$-nearest neighbors ($k$-NN) algorithm to select the $k$ most relevant tokens
-in the datastore during decoding.
-
-~~~ python
-    def search(self, queries, k):
-        """
-        -search method retrieves the indices of the k closest vectors to query
-        """
-        if len(queries.shape) == 1: # searching for only 1 vector, add one extra dim
-            self.logger.info("Searching for a single vector; unsqueezing")
-            queries = queries.unsqueeze(0)
-        assert queries.shape[-1] == self.dimension # query vectors are same shape as "key" vectors
-        if self.use_flat_index:
-            if self.gpu_index:
-                scores, values = faiss.knn_gpu(faiss.StandardGpuResources(),
-                                               queries,
-                                               self.keys,
-                                               k,
-                                               metric=faiss.METRIC_INNER_PRODUCT,
-                                               device=self.device.index
-                                               )
-~~~
+Since Vaswani et al 2017, transformers have become the default approach to
+natural language processing. Transformers have succeeded due to their ability
+to capture long range dependencies between tokens. They do so by abandoning
+the sequential approach of recurrent neural networks and instead allowing
+the decoder to attend to a complete graph over the encoded hidden states of
+tokens. The complexity of complete graphs is therefore quadratic in the number
+of tokens. The result is a powerful *attention* mechanism, but one that is
+local and restricted to the *context window*. The context window of ChatGPT-3.5
+is 4,096 tokens, while the average novel contains well over 100,000 tokens.
+Proprietory models such as GPT-4 and Claude provide users with models that
+extend beyond 100,000 tokens, but the question remains: what is the best way to
+achieve this?
+)
 
 ### Our experiments 
 
@@ -184,7 +209,7 @@ typical range of between 400 and 1000.
 <!-- ![Initial Results Table](images/initial_results_stats.png) -->
 
 Initial Result Summary Token Lengths (Validation) 
-|        | Average                                          | Min | Max  | Std Dev |
+|        | Average                                          | Min | Max  | Std Dev|
 |--------|--------------------------------------------------|-----|------|--------|
 | LD     | 128                                              | 86  | 130  | 2      |
 | KG     | 737                                              | 494 | 1022 | 65     |
@@ -223,13 +248,12 @@ Final Result Summary Token Lengths (Validation)
 
 <!-- ![Results Table](images/results_table.png) -->
 
-| Base Model     | Input Type    | ROUGE 1/2/L/GeoMean | BERTScore F1 |
-|----------------|---------------|---------------------|--------------|
-| BARTbase       | LD (Test Set) | 56.6 / 26.3 / 27.6 / ------ | 0.682      |
-| BARTbase+18k   | LD            | 50.1 / 20.9 / 21.5 / 28.2   | 0.639      |
-| BARTbase+18k   | KG            | 44.0 / 13.8 / 19.5 / 22.8   | 0.609      |
-| BARTbase+18k   | KG+LD         | 53.2 / 22.5 / 23.6 / 30.5   | 0.655      |
-
+| Base Model     | Input Type | ROUGE 1/2/L/GeoMean       | BERTScore F1 |
+|----------------|------------|---------------------------|--------------|
+| BARTbase       | LD (Test Set) | 56.6 / 26.3 / 27.6 / ----    | 0.682        |
+| BARTbase+18k   | LD            | 50.1 / 20.9 / 21.5 / 28.2    | 0.639        |
+| BARTbase+18k   | KG            | 44.0 / 13.8 / 19.5 / 22.8     | 0.609        |
+| BARTbase+18k   | KG+LD         | 53.2 / 22.5 / 23.6 / 30.5     | 0.655        |
 
 
 
@@ -282,13 +306,13 @@ would be very natural. We leave this extension to future work.)
 relation extraction NER and RE results compared with the benchmark among all
 models sampled, achieving a relation F1 score of 47.1[^4].)
 
-Given the time and compute resources available to us, through trial and error,
-we found that extracting three or four head-relation-tail triplets per 128-token
-chunk is optimal. We set the span_length, **parameter**, `num_beams` parameters
-to control extraction. Recall that `num_beams` is the maximum number of
-candidates (in this case relation triplets) that the attention mechanism will hold over
-the `span_length` of text, which is in this case 128 tokens or approximately the
-length of a single paragraph.
+Given the time and compute resources available to us, through trial and
+error, we found that extracting three or four head-relation-tail triplets per
+128-token chunk is optimal. We set the span_length, **parameter**, `num_beams`
+parameters to control extraction. Recall that `num_beams` is the maximum number
+of candidates (in this case relation triplets) that the attention mechanism
+will hold over the `span_length` of text, which is in this case 128 tokens or
+approximately the length of a single paragraph.
 
 [code example here]
 
@@ -351,11 +375,11 @@ within them are straightforward.)
 
 #### GovReport 
 
-The GovReport dataset is a well-established long-document summarization
-datasets that is both publicly available and ready-to-use. We use it
-because it is a large and popluar dataset that has many real-world
-applications. The Hugging Face GovReport [^3] dataset has an approximate
-$90/5/5\%$ split of approximately $19.5$k document-summary pairs.
+The GovReport dataset is a well-established long-document summarization datasets
+that is both publicly available and ready-to-use. We use it because it is a
+large and popluar dataset that has many real-world applications. The Hugging
+Face GovReport [^3] dataset has an approximate $90/5/5\%$ split of approximately
+$19.5$k document-summary pairs.
 
 
 
@@ -364,33 +388,31 @@ $90/5/5\%$ split of approximately $19.5$k document-summary pairs.
 
 ### Unlimiformer 
 
-\*\*Why unlimiformer, and what is it?\*\* Augmenting large language
-models (LLMs) to handle long documents using retrieval-based methods is
-a highly active area of research. Since Vaswani et al 2017, transformers
-have become the default approach to natural language processing.
-Transformers have succeeded due to their ability to capture long range
-dependencies between tokens. They do so by abandoning the sequential
-approach of recurrent neural networks and instead allowing the decoder
-to attend to a complete graph over the encoded hidden states of tokens.
-The complexity of complete graphs is therefore quadratic in the number
-of tokens. The result is a powerful *attention* mechanism, but one that
-is local and restricted to the *context window*. The context window of
-ChatGPT-3.5 is 4,096 tokens, while the average novel contains well over
-100,000 tokens. Proprietory models such as GPT-4 and Claude provide
-users with models that extend beyond 100,000 tokens, but the question
-remains: what is the best way to achieve this?
+Unlimiformer is a recent retrieval-based method for augmenting LLMs at the
+decoder level, it is the first long-range transformer to support unlimited
+length inputs. The key innovation of unlimiformer is to create a datastore of
+encodings one for each token in the original document and use the $k$-nearest
+neighbors ($k$-NN) algorithm to select the $k$ most relevant tokens in the
+datastore during decoding.
+
+To bypass the constraint of limited window of attention, `unlimiformer` changes
+the contents of the context window. That is, instead of passing the next chunk
+of text in the sequence, it feeds the decoder the k-nearest neighbors that it
+can find in a datastore that contains all the tokens in the entire document.
+Consider a simplified equation of attention $\text{Attn}(Q, K, V) = \softmax
+(Q K^T) V$ where, for each hidden-layer state h_d of the decoder and the final
+hidden layer state h_e of the encoder, $Q = h_d W_Q$, $K = h_e W_K$ and $V =
+h_e W_v$. The trick is to rewrite $(Q K ^T)_{i, j} = \langle p_{d,i}, h_{e,
+j}\rangle$ where $p_{d, i} = h_{d, i} W_Q W_K^T$. This allows us to create a
+datastore $\{h_{e, j} \in \mathcal H_{\text{enc}} : j \in \text{LongDoc}\}$ and
+identify the k nearest neighbors in the datastore to the projection p_d. Only
+those k nearest neighbors are passed to the decoder of an otherwise standard
+LLM.
+
+
 
 #### Retrieval-Augmentations of LLMs
 
-Unlimiformer stands out for its novel integration of retrieval mechanisms
-directly into the Transformer architecture. This integration allows the model to
-dynamically access large-scale, a document-specific external (FAISS) datastore
-during inference. This datastore is populated with encoded representations of
-the full input text. The key advantage of this approach is that it enables
-the model to augment its language generation capabilities with contextually
-relevant, externally stored information. This is useful for tasks
-requiring deep, specific knowledge or for improving the model's ability to stay
-updated with recent information.
 
 #### Comparison with Other Methods (Datastore Access)
 
@@ -482,36 +504,40 @@ BART can adapt to specific types of structured inputs relevant to a
 particular task, enhancing its ability to process and generate
 meaningful outputs based on that structure.
 
-In summary, BART's ability to process and understand the entire input
-sequence contextually, along with its adaptability and pre-training on
-diverse data, makes it well-suited for handling structured inputs. This
-capability allows it to effectively process and generate outputs based
-on inputs like knowledge graphs.
-
-
-In this context, the slower training times you observed might not be due
-to the tokenization strategy per se but could involve other factors such
-as the complexity of the relationships in the KGs, the adaptation of the
-model to this unique structuring of inputs, or other computational
-aspects related to how the BART model processes these inputs.
-
-Your approach aligns with the design principles of transformer models
-like BART, which are adept at handling structured inputs. The key would
-be to ensure that the rest of your training pipeline, including data
-preprocessing and model fine-tuning, is optimized to leverage this
-structure effectively.
 
 ### Metrics
-When it comes to summarizing long documents, metrics like ROUGE and BertScore are critical. They offer a standardized, quantitative way to assess the performance of summarization algorithms.
+
+When it comes to summarizing long documents, metrics like ROUGE and BertScore
+are critical. They offer a standardized, quantitative way to assess the
+performance of summarization algorithms.
 
 #### ROUGE Metrics
-- **ROUGE-1** measures the overlap of unigrams (individual words) between the system-generated summary and a set of reference summaries. It captures the surface-level accuracy, essentially checking if the key terms appear in the summary.
-- **ROUGE-2** measures the overlap of unigrams (individual words) between the system-generated summary and a set of reference summaries. It captures the surface-level accuracy, essentially checking if the key terms appear in the summary.
-- **ROUGE-L** focuses on the longest common subsequence between the generated summary and the reference. It can recognize longer phrases that appear in both texts, which reflects a higher level of semantic similarity.
-- **ROUGE Geometric Mean** is a composite score that combines ROUGE-1, ROUGE-2, and ROUGE-L (sometimes including others, like ROUGE-SU4) by calculating their geometric mean. It balances the contribution of each metric, offering a more holistic view of the quality of the summary.
+
+*ROUGE-1* measures the overlap of unigrams (individual words) between the
+system-generated summary and a set of reference summaries. It captures the
+surface-level accuracy, essentially checking if the key terms appear in the
+summary.
+
+*ROUGE-2* measures the overlap of unigrams (individual words) between the
+system-generated summary and a set of reference summaries. It captures the
+surface-level accuracy, essentially checking if the key terms appear in the
+summary.
+
+*ROUGE-L* focuses on the longest common subsequence between the generated
+summary and the reference. It can recognize longer phrases that appear in both
+texts, which reflects a higher level of semantic similarity.
+
+*ROUGE Geometric Mean* is a composite score that combines ROUGE-1, ROUGE-2, and
+ROUGE-L by calculating their geometric mean. It balances the contribution of
+each metric, offering a more holistic view of the quality of the summary.
 
 #### BertScore
-- **BertScore F1** leverages the power of BERT. BertScore computes the similarity of each token in the candidate summary to each token in the reference summary and vice versa, resulting in precision and recall scores. The F1 score is the harmonic mean of these two, providing a balance that considers both the summary's coverage of content and the content's relevance to the summary.
+
+*BertScore F1* [BertScore](link to paper) computes the similarity
+of each token in the candidate summary to each token in the reference summary
+and vice versa, resulting in precision and recall scores. The F1 score is
+the harmonic mean of these two, providing a balance that considers both the
+summary's coverage of content and the content's relevance to the summary.
 
 
 ## Results 
