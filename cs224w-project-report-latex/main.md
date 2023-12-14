@@ -128,13 +128,16 @@ dataset](https://huggingface.co/datasets/patrickocal/gov_report_kg/viewer/gov_re
 port_kg_comb) replaces each LD with a single string that is the concatenation of
 the KG and LD.
 
-![Inputs Table](images/input_stats.png)
-|       | Input Token Lengths (Train/Validation/Test) |       |       |         |
-|-------|---------------------------------------------|-------|-------|---------|
-|       | Average                                     | Min   | Max   | Std Dev |
-| LD    | (9617/10044/9209)                          | (74/237/561) | (303192/69300/38735) | (7644/7106/5446) |
-| KG    | (2820/2902/2766)                           | (121/401/223) | (63988/13049/12728) | (2013/1782/1625) |
-| KG+LD | (13203/13854/12829)                        | (487/1541/825) | (313947/77692/58815) | (9753/9065/7525) |
+<!-- ![Inputs Table](images/input_stats.png) -->
+
+|       | Average                 | Min             | Max                      | Std Dev              |
+|-------|-------------------------|-----------------|--------------------------|----------------------|
+| LD    | 9617 / 10044 / 9209     | 74 / 237 / 561  | 303192 / 69300 / 38735   | 7644 / 7106 / 5446   |
+| KG    | 2820 / 2902 / 2766      | 121 / 401 / 223 | 63988 / 13049 / 12728    | 2013 / 1782 / 1625   |
+| KG+LD | 13203 / 13854 / 12829   | 487 / 1541 / 825 | 313947 / 77692 / 58815  | 9753 / 9065 / 7525   |
+
+Input Token Lengths (Train/Validation/Test)
+
 
 
 ### Training BART+Unlimiformer 
@@ -178,7 +181,7 @@ with a typical range of 600 to 1100. The target/golden summaries for GovReport
 are closer to the latter with the number of tokens being 600 on average with a
 typical range of between 400 and 1000.
 
-![Initial Results Table](images/initial_results_stats.png)
+<!-- ![Initial Results Table](images/initial_results_stats.png) -->
 
 Initial Result Summary Token Lengths (Validation) 
 |        | Average                                          | Min | Max  | Std Dev |
@@ -187,6 +190,14 @@ Initial Result Summary Token Lengths (Validation)
 | KG     | 737                                              | 494 | 1022 | 65     |
 | KG+LD  | 755                                              | 500 | 916  | 52     |
 
+<!-- ![Initial Table](images/initial_table.png) -->
+
+| Base Model      | Input Type     | ROUGE 1/2/L/GeoMean | BERTScore F1 |
+|-----------------|----------------|---------------------|--------------|
+| BARTbase        | LD (Test Set)  | 56.6 / 26.3 / 27.6 / ---- | 0.682       |
+| BARTbase+18k    | LD             | 23.9 / 12.6 / 15.3 / 16.6   | 0.601       |
+| BARTbase+18k    | KG             | 21.9 / 21.4 / 13.4 / 21.2   | 0.596       |
+| BARTbase+18k    | KG+LD          | 42.4 / 12.6 / 18.1 / 21.3   | 0.598       |
 
 We explore the cause of these differences and refine our experiments to control
 for length of summary. We do so by re-initializing training with a model that
@@ -200,7 +211,7 @@ with our initial hypothesis. We summarise these results in
 [\[fig:summary-of-results-intro\]](#fig:summary-of-results-intro){reference-type="ref"
 reference="fig:summary-of-results-intro"}.
 
-![Final Results Table](images/final_results_stats.png)
+<!-- ![Final Results Table](images/final_results_stats.png) -->
 
 Final Result Summary Token Lengths (Validation) 
 |        | Average                                        | Min  | Max  | Std Dev|
@@ -210,14 +221,15 @@ Final Result Summary Token Lengths (Validation)
 | KG+LD  | 657                                            | 476  | 1023 | 109    |
 
 
-![Results Table](images/results_table.png)
+<!-- ![Results Table](images/results_table.png) -->
 
-| Base Model     | Input Type | ROUGE 1/2/L/GeoMean       | BERTScore F1 |
-|----------------|------------|---------------------------|--------------|
-| BARTbase       | LD (Test Set) | (56.6/26.3/27.6/-----) | 0.682        |
-| BARTbase+18k   | LD         | (50.1/20.9/21.5/28.2)    | 0.639        |
-| BARTbase+18k   | KG         | (44.0/13.8/19.5/22.8)    | 0.609        |
-| BARTbase+18k   | KG+LD      | (53.2/22.5/23.6/30.5)    | 0.655        |
+| Base Model     | Input Type    | ROUGE 1/2/L/GeoMean | BERTScore F1 |
+|----------------|---------------|---------------------|--------------|
+| BARTbase       | LD (Test Set) | 56.6 / 26.3 / 27.6 / ------ | 0.682      |
+| BARTbase+18k   | LD            | 50.1 / 20.9 / 21.5 / 28.2   | 0.639      |
+| BARTbase+18k   | KG            | 44.0 / 13.8 / 19.5 / 22.8   | 0.609      |
+| BARTbase+18k   | KG+LD         | 53.2 / 22.5 / 23.6 / 30.5   | 0.655      |
+
 
 
 
