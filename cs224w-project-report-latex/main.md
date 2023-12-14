@@ -65,121 +65,139 @@ Here is an example citation in Markdown [[Cockett, 2022]](https://doi.org/10.528
 
 ## Introduction 
 
-In this blog post, we explore how knowledge graphs can applied to improve
-the summarization of long documents. Long documents are often difficult
+Long documents are often difficult
 to understand and summarize. This is especially true of technical documents
 such as government reports where entities are often obscure institutions or
 less-well-known individuals. In literature, one way of dealing with this
 complexity is to introduce a _dramatis personae_, or cast of characters, at the
 beginning of the text. Famous examples include the works of Shakespeare where
-the main text of each play is preceded by a *cast of characters* (and their
-relations) of the form:
+the main text of each play is preceded by a *cast of characters (and their
+relations)*:
 
 \<photo\>
 
-We interpret the cast of characters as a knowledge graph and look at how large
+The cast of characters is a form of knowledge graph that is, a collection of
+relations connecting pairs of entities. Its structured form provides an aid to
+reading for humans and it seems reasonable that it might also be useful for
+large language models.
+
+In this blog post, we look at how large
 language models can be trained to summarize technical, long documents that
 are augmented with knowledge graphs. To do so, we exploit a recent innovation
 in text summarization that allows for documents of arbitrary length called
 [unlimiformer](https://arxiv.org/abs/2305.01625).
 
-[comment]: # (
-A more extensive example is a complicated historical text such as Hilary Mantel's "The
+[comment]: # (A more extensive example is a complicated historical text such as Hilary Mantel's "The
 mirror and the light". There the contents page is followed by seven pages of
 structured knowledge-graph-like text.
-
 In this blog post, we explore how knowledge graphs can applied to improve
 the summarization of long documents. To do so, we exploit a recent innovation in
 long-document summarization that allows for documents of arbitrary length called
-
 that provides a 
 structured and easy-to-refer-to characterisation of key entities in the 
 document. Structured text differs from the free-form text of a typical
 document.
-
 We hypothesize that, much like how a cast of characters can aid a reader in understanding a complicated novel by highlighting key relationships between characters, knowledge graphs can help large language models generate better summaries of long documents.
-
 The issue is that augmenting a long document with a knowledge graph involves
-making a long document even longer.
+making a long document even longer.)
 
 
-)
-
-
-### Problem Statement 
+#### Problem Statement 
 
 Until recently long documents were already too long for the limited context
-window of attention of transformer models (the leading technology for generating
-summaries). Whilst the context window is still limited, various ways to extend
-it have emerged and this leads us to the following question:
+window of attention of transformer models (the leading machine-learning paradigm
+for generating summaries from short documents). Whilst the context window is still limited, various
+ways to extend it have emerged and this leads us to the following question:
 
 [center]
 Will summarization improve if we *extend* or augment a document with its knowledge graph?
 [center]
 
-Our task is therefore to build the right datasets, choose the right
-architecture and design suitable experiments that will enable us measure any
-possible impact of including a "cast of entities" (and their relations) at the
-beginning of the document.
+On the face of it, extending a long document to improve summarization is
+counterintuitive: until now knowledge graphs were an effective way to shorten
+a document. That is to convert a long document into a concise and structured
+short one that transformers are better able to summarize [citation]. Instead, what
+we propose here is to make a long document even longer.
 
-### Knowledge Graphs (KGs) of Long Documents (LDs) 
+To answer this question, our task is therefore to choose and augment the right
+dataset, choose the right architecture and design suitable experiments that
+will enable us measure the impact of including a "cast of entities"
+(and their relations) at the beginning of the document.
 
-Knowledge graphs stand in contrast with long documents in that they are
-structured and concise. They form a significant reduction of the document to
-facts (expressed as relations between entities).
+#### Knowledge Graphs of Long Documents
 
-We choose the REBEL end-to-end relation extractor to generate our knowledge
-graphs.
+Knowledge graphs (KGs) stand in contrast with long documents (LDs) in that they
+are structured and concise. They form a significant reduction of the document to
+facts. These facts are typically expressed as relation triplets. For example:
 
-### Two new KG datasets 
+[center]
+"head : relation : tail" = "Washington DC : capital of : United States".
+[center]
 
-In this project, we generate a new collection of knowledge graphs: one for each
-example in the GovReport dataset. This is a significant undertaking for two
-reasons:
+We focus on the [GovReports](____) dataset. In [the
+version](https://huggingface.co/tau/sled/gov_report) we consider, each example
+consists of an LD and a golden summary. Since these documents do not come with
+knowledge graphs, our first task is to generate them. There are a number of ways
+to do this and we choose the REBEL end-to-end relation extractor (more details
+below). Once relations have been extracted, they need to be combined into a
+single input string whilst preserving the overall KG structure of the document.
+This requires a delicate handling of the token syntax of large language models
+(LLMs). In other words, there are significant design choices relating to how
+KG relations are specified and passed to the language model to generate summaries.
+We specify each KG as a single sequence of subsequences: one subsequence for
+each relation triplet in the KG.
 
-1. there are approximately 19,500 documents in GovReport;
+#### Two new datasets 
+
+We then apply this same method to generate a collection of knowledge graphs: one
+for each example in the GovReport dataset. To our knowledge, this new dataset is not
+publicly available. It is a significant undertaking for two reasons:
+
+1. there are approximately 19,500 examples in GovReport;
 
 2. the variance in the length of documents is significant and this leads to
 major hardware management issues during generation.
 
-There are significant design choices relating to how relations are specified
-and passed to the language model to generate summaries. We specify each KG as a
-single sequence of subsequences: one subsequence for each relation triplet in
-the KG. We then integrate the collection of KGs with GovReport.
-
-The [first
+To generate this collection of KGs, we made significant use
+of the University of Queensland Bunya cluster in order to
+parallelize our workflow as much as possible. (The task still
+took the best part of a week to complete.) In our [first
 dataset](https://huggingface.co/patrickocal/gov_report_kg/viewer/gov_report_kg)
-replaces each LD in GovReport with a KG. The [second
+we replace each LD (input string/sequence)
+in GovReport with a KG. For the [second
 dataset](https://huggingface.co/datasets/patrickocal/gov_report_kg/viewer/gov_re
-port_kg_comb) replaces each LD with a single string that is the concatenation of
-the KG and LD.
+port_kg_comb) we replace each LD with a single string that is the concatenation
+of the KG and LD.
+
+[Inputs Table](images/input_stats.png)
+[graph here]
+[table]
+
+[comment]: # (| Dataset | Average (# tokens                 | Min             | Max                      | Std Dev         |
+|-------|-------------------------|-----------------|--------------------------|------------------------------|
+| LD    | 9,617 / 10,044 / 9,209     | 74 / 237 / 561  | 303,192 / 69,300 / 38,735   | 7,644 / 7,106 / 5,446  |
+| KG    | 2,820 / 2,902 / 2,766      | 121 / 401 / 223 | 63,988 / 13,049 / 12,728    | 2,013 / 1,782 / 1,625  |
+| KG+LD | 13,203 / 13,854 / 12,829   | 487 / 1,541 / 825 | 313,947 / 77,692 / 58,815  | 9,753 / 9,065 / 7,525 |
+| | | |
+| KG+LD | 13,203 / 13,854 / 12,829   | 487 / 1,541 / 825 | 313,947 / 77,692 / 58,815 |
+)
+
+| Dataset | Average (# input tokens)                 | Min             | Max        |
+|-------|-------------------------|-----------------|--------------------------|
+| LD    | 9,617 / 10,044 / 9,209     | 74 / 237 / 561  | 303,192 / 69,300 / 38,735   |
+| KG    | 2,820 / 2,902 / 2,766      | 121 / 401 / 223 | 63,988 / 13,049 / 12,728    |
+
+[caption]
+Table 1: Input token lengths (train / talidation / test): we see that
+the largest LD is over 300k tokens long and it generates a KG of almost 64k
+tokens. The summary statistics for KG+LD dataset is essentially the sum.
+[caption]
 
 
-<!-- ![Inputs Table](images/input_stats.png) -->
-
-|       | Average                 | Min             | Max                      | Std Dev              |
-|-------|-------------------------|-----------------|--------------------------|----------------------|
-| LD    | 9617 / 10044 / 9209     | 74 / 237 / 561  | 303192 / 69300 / 38735   | 7644 / 7106 / 5446   |
-| KG    | 2820 / 2902 / 2766      | 121 / 401 / 223 | 63988 / 13049 / 12728    | 2013 / 1782 / 1625   |
-| KG+LD | 13203 / 13854 / 12829   | 487 / 1541 / 825 | 313947 / 77692 / 58815  | 9753 / 9065 / 7525   |
-
-Input Token Lengths (Train/Validation/Test)
-
-![Inputs Table](images/input_stats.png)
-|       | Input Token Lengths (Train/Dev/Test) |       |       |         |
-|-------|---------------------------------------------|-------|-------|---------|
-|       | Average                                     | Min   | Max   | Std Dev |
-| LD    | (9617/10044/9209)                          | (74/237/561) | (303192/69300/38735) | (7644/7106/5446) |
-| KG    | (2820/2902/2766)                           | (121/401/223) | (63988/13049/12728) | (2013/1782/1625) |
-| KG+LD | (13203/13854/12829)                        | (487/1541/825) | (313947/77692/58815) | (9753/9065/7525) |
-
-[comment]: # (
-### Training a large language model
-
+[comment]: # ( ### Training a large language model
 [rewrite]
 Augmenting large language models (LLMs to handle long documents using
 retrieval-based methods is a highly active area of research.
-
 Since Vaswani et al 2017, transformers have become the default approach to
 natural language processing. Transformers have succeeded due to their ability
 to capture long range dependencies between tokens. They do so by abandoning
@@ -192,44 +210,96 @@ is 4,096 tokens, while the average novel contains well over 100,000 tokens.
 Proprietory models such as GPT-4 and Claude provide users with models that
 extend beyond 100,000 tokens, but the question remains: what is the best way to
 achieve this?
+
 )
 
-### Our experiments 
+#### Our initial experiments 
 
 Our experiments focus on comparing the summary outputs across the three
 datasets: the original GovReports, the GovReportsKG and the GovReportsKG+LD. Our
 initial findings reveal significant differences between the summaries generated
-from LDs vs the new datasets. The default BART model produces summaries of
-approximately 130 tokens with a typical range of 100 to and 150 tokens. In
-contrast, the KGs and KG+LDs generated summaries of approximately 900 tokens
-with a typical range of 600 to 1100. The target/golden summaries for GovReport
+from LDs and the two new datasets. The main issue is that default
+facebook/bart-base (BART) model
+produces summaries of approximately 130 tokens with a typical range of 100 to
+and 150 tokens for a standard sequence, but significantly longer summaries for a
+sequence of sequences: which is the format of our KGs. Thus, the KGs and KG+LDs
+generate summaries of over 700 tokens The target/golden summaries for GovReport
 are closer to the latter with the number of tokens being 600 on average with a
 typical range of between 400 and 1000.
 
 <!-- ![Initial Results Table](images/initial_results_stats.png) -->
+[table]
+| Source of output | Average (# tokens)   | Min | Max  | Std Dev|
+|------------------|-----------|-----|------|--------|
+| Golden           | 597       | ???| @sheel  | ???      |
+| BART: LD    | 128       | 86  | 130  | 2      |
+| BART: KG    | 737       | 494 | 1,022 | 65     |
+| BART: KG+LD | 755       | 500 | 916  | 52     |
 
-Initial Result Summary Token Lengths (Validation) 
-|        | Average                                          | Min | Max  | Std Dev|
-|--------|--------------------------------------------------|-----|------|--------|
-| LD     | 128                                              | 86  | 130  | 2      |
-| KG     | 737                                              | 494 | 1022 | 65     |
-| KG+LD  | 755                                              | 500 | 916  | 52     |
+[caption]
+Validation set summary token Lengths for our initial experiments.
+[caption]
+
+Our initial experiment results are as follows:
 
 <!-- ![Initial Table](images/initial_table.png) -->
+[table]
 
-| Base Model      | Input Type     | ROUGE 1/2/L/GeoMean | BERTScore F1 |
-|-----------------|----------------|---------------------|--------------|
-| BARTbase        | LD (Test Set)  | 56.6 / 26.3 / 27.6 / ---- | 0.682       |
-| BARTbase+18k    | LD             | 23.9 / 12.6 / 15.3 / 16.6   | 0.601       |
-| BARTbase+18k    | KG             | 21.9 / 21.4 / 13.4 / 21.2   | 0.596       |
-| BARTbase+18k    | KG+LD          | 42.4 / 12.6 / 18.1 / 21.3   | 0.598       |
+| BARTbase+Unlimiformer                                           | ROUGE 1/2/L/GeoMean         | BERTScore F1 |
+|-----------------------------------------------------------------|-----------------------------|--------------|
+| [unlimiformer table 4](https://arxiv.org/pdf/2305.01625.pdf) LD (test set)  | 56.6 / 26.3 / 27.6 / NA     | 68.2         |
+| Our results LD (validation set)                                  | 23.9 / 12.6 / 15.3 / 16.6   | 60.2         |
+| Our results KG (validation set)                                  | 41.9 / 12.4 / 18.4 / 21.2   | 59.6         |
+| Oure results KG+LD (validation set)                               | 42.4 / 12.6 / 18.1 / 21.3   | 59.8         |
 
-We explore the cause of these differences and refine our experiments to control
+[caption]
+We see large differences in performance, not only across the board
+relative to the unlimiformer paper (table-4) baseline but also in the ROUGE 1
+scores. This difference in R1 is largely due to the difference in summary size
+since R1 is a recall metric (proportion of words in the target summary that
+appear in the generated one).
+[caption]
+
+
+We explore the cause of these differences and find that the size-of-summary
+effect is sensitive to to the conda environment (versions of libraries
+such as Transformers or PyTorch) and a specific boolean parameter called
+`add_special_tokens`. In our initial experiments with conda [environment
+1](link to colab), we found that the `add_special_tokens` parameter made
+little difference: either way the KG and KG+LD summaries were long and
+the training pattern was similar. 
+
+The `add_special_tokens` parameter is a boolean flag that instructs
+the tokenizer whether to automatically add special tokens (like
+beginning-of-sentence `<s>`, end-of-sentence `</s>`, padding `<pad>`,
+[etc.](https://colab.research.google.com/drive/1WImeVXJgn_7wIIggJc_g6CK25XGYR9wv
+#scrollTo=XgzEjsYevftq) to the input sequences. When set to `True`, the
+tokenizer will insert these tokens as required by the model's architecture,
+often at the start and end of each sequence. Conversely, setting it to `False`
+means these tokens must be manually added during preprocessing if needed, as the
+tokenizer will not insert them automatically.
+
+Indeed we manually add special tokens during the creation of our datasets. In
+particular the tokens `<s>` and `</s>` are of special significance as we use
+them to demark our relation triplets. In our data, a KG is a sequence of the form:
+
+[center]
+"... <s> France : diplomatic relation : Egypt </s><s> France : diplomatic relation : Israel </s> ..."
+[center]
+[caption]
+This is an excerpt from example "RL33003" of the validation set.
+[caption]
+
+After exploring different conda environments, we found a specification where
+the `add_special_tokens` parameter made a significant different to output.
+
+#### Our final experiments
+
+refine our experiments to control
 for length of summary. We do so by re-initializing training with a model that
 is fine-tuned to produce longer summaries. The goal is to create a fair "horse
 race" to compare summarization performance across the three datasets.
 
-### Overview of our final results 
 
 Once we control for length of summary, our final results are in line
 with our initial hypothesis. We summarise these results in
