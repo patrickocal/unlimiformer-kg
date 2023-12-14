@@ -129,6 +129,13 @@ port_kg_comb) replaces each LD with a single string that is the concatenation of
 the KG and LD.
 
 ![Inputs Table](images/input_stats.png)
+|       | Input Token Lengths (Train/Validation/Test) |       |       |         |
+|-------|---------------------------------------------|-------|-------|---------|
+|       | Average                                     | Min   | Max   | Std Dev |
+| LD    | (9617/10044/9209)                          | (74/237/561) | (303192/69300/38735) | (7644/7106/5446) |
+| KG    | (2820/2902/2766)                           | (121/401/223) | (63988/13049/12728) | (2013/1782/1625) |
+| KG+LD | (13203/13854/12829)                        | (487/1541/825) | (313947/77692/58815) | (9753/9065/7525) |
+
 
 ### Training BART+Unlimiformer 
 
@@ -173,6 +180,14 @@ typical range of between 400 and 1000.
 
 ![Initial Results Table](images/initial_results_stats.png)
 
+Initial Result Summary Token Lengths (Validation) 
+|        | Average                                          | Min | Max  | Std Dev |
+|--------|--------------------------------------------------|-----|------|--------|
+| LD     | 128                                              | 86  | 130  | 2      |
+| KG     | 737                                              | 494 | 1022 | 65     |
+| KG+LD  | 755                                              | 500 | 916  | 52     |
+
+
 We explore the cause of these differences and refine our experiments to control
 for length of summary. We do so by re-initializing training with a model that
 is fine-tuned to produce longer summaries. The goal is to create a fair "horse
@@ -186,6 +201,25 @@ with our initial hypothesis. We summarise these results in
 reference="fig:summary-of-results-intro"}.
 
 ![Final Results Table](images/final_results_stats.png)
+
+Final Result Summary Token Lengths (Validation) 
+|        | Average                                        | Min  | Max  | Std Dev|
+|--------|------------------------------------------------|------|------|--------|
+| LD     | 943                                            | 630  | 1026 | 80     |
+| KG     | 555                                            | 364  | 824  | 66     |
+| KG+LD  | 657                                            | 476  | 1023 | 109    |
+
+
+![Results Table](images/results_table.png)
+
+| Base Model     | Input Type | ROUGE 1/2/L/GeoMean       | BERTScore F1 |
+|----------------|------------|---------------------------|--------------|
+| BARTbase       | LD (Test Set) | (56.6/26.3/27.6/-----) | 0.682        |
+| BARTbase+18k   | LD         | (50.1/20.9/21.5/28.2)    | 0.639        |
+| BARTbase+18k   | KG         | (44.0/13.8/19.5/22.8)    | 0.609        |
+| BARTbase+18k   | KG+LD      | (53.2/22.5/23.6/30.5)    | 0.655        |
+
+
 
 We find that the best summaries are indeed produced by the combined KG+LD
 input. This is followed by LDs and then finally KGs. There is a
