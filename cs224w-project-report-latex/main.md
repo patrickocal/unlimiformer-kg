@@ -229,12 +229,12 @@ typical range of between 400 and 1000.
 
 <!-- ![Initial Results Table](images/initial_results_stats.png) -->
 [table]
-| Source of output | Average (# tokens)   | Min | Max  | Std Dev|
-|------------------|-----------|-----|------|--------|
-| Golden           | 597       | ???| @sheel  | ???      |
-| BART: LD    | 128       | 86  | 130  | 2      |
-| BART: KG    | 737       | 494 | 1,022 | 65     |
-| BART: KG+LD | 755       | 500 | 916  | 52     |
+| Source of output | Average (# tokens)| Min | Max | Std Dev |
+|------------------|-----------|-----|---------|--------|
+| Golden           | 597       | ??? | @sheel  | ???    |
+| BART: LD         | 128       | 86  | 130     | 2      |
+| BART: KG         | 737       | 494 | 1,022   | 65     |
+| BART: KG+LD      | 755       | 500 | 916     | 52     |
 
 [caption]
 Validation set summary token Lengths for our initial experiments.
@@ -247,10 +247,10 @@ Our initial experiment results are as follows:
 
 | BARTbase+Unlimiformer                                           | ROUGE 1/2/L/GeoMean         | BERTScore F1 |
 |-----------------------------------------------------------------|-----------------------------|--------------|
-| [unlimiformer table 4](https://arxiv.org/pdf/2305.01625.pdf) LD (test set)  | 56.6 / 26.3 / 27.6 / NA     | 68.2         |
-| Our results LD (validation set)                                  | 23.9 / 12.6 / 15.3 / 16.6   | 60.2         |
-| Our results KG (validation set)                                  | 41.9 / 12.4 / 18.4 / 21.2   | 59.6         |
-| Oure results KG+LD (validation set)                               | 42.4 / 12.6 / 18.1 / 21.3   | 59.8         |
+| LD (benchmark [unlimiformer table 4](https://arxiv.org/pdf/2305.01625.pdf) on test set)    | 56.6 / 26.3 / 27.6 / NA   | 68.2 |
+| LD (best perfomance on validation during training)                                                   | 23.9 / 12.6 / 15.3 / 16.6   | 60.2         |
+| KG (best perfomance on validation during training)                                                   | 41.9 / 12.4 / 18.4 / 21.2   | 59.6         |
+| KG+LD (best performance on validation during training)                                               | 42.4 / 12.6 / 18.1 / 21.3   | 59.8         |
 
 [caption]
 We see large differences in performance, not only across the board
@@ -269,52 +269,80 @@ such as Transformers or PyTorch) and a specific boolean parameter called
 little difference: either way the KG and KG+LD summaries were long and
 the training pattern was similar. 
 
-The `add_special_tokens` parameter is a boolean flag that instructs
+- **Definition** The `add_special_tokens` parameter is a boolean flag that instructs
 the tokenizer whether to automatically add special tokens (like
 beginning-of-sentence `<s>`, end-of-sentence `</s>`, padding `<pad>`,
-[etc.](https://colab.research.google.com/drive/1WImeVXJgn_7wIIggJc_g6CK25XGYR9wv
-#scrollTo=XgzEjsYevftq) to the input sequences. When set to `True`, the
+[etc.](https://colab.research.google.com/drive/1WImeVXJgn_7wIIggJc_g6CK25XGYR9wv#scrollTo=XgzEjsYevftq) to the input sequences. When set to `True`, the
 tokenizer will insert these tokens as required by the model's architecture,
 often at the start and end of each sequence. Conversely, setting it to `False`
 means these tokens must be manually added during preprocessing if needed, as the
 tokenizer will not insert them automatically.
 
 Indeed we manually add special tokens during the creation of our datasets. In
-particular the tokens `<s>` and `</s>` are of special significance as we use
+particular, the tokens `<s>` and `</s>` are of special significance as we use
 them to demark our relation triplets. In our data, a KG is a sequence of the form:
 
 [center]
-"... <s> France : diplomatic relation : Egypt </s><s> France : diplomatic relation : Israel </s> ..."
+"... `<s>` France : diplomatic relation : Egypt `</s>``<s>` France : diplomatic relation : Israel `</s>` ..."
 [center]
 [caption]
 This is an excerpt from example "RL33003" of the validation set.
 [caption]
 
 After exploring different conda environments, we found a specification where
-the `add_special_tokens` parameter made a significant different to output.
+the `add_special_tokens` parameter made a significant difference to the output.
+Whilst taking care to ensure that we continued to work with the same
+Transformers version (1.34.1), we found that across the board performance
+improved versus our initial runs.
+
+[Figure 2: insert figure KG+COMB initial and final bertscore f1 runs from wandb here (already set up on medium)]
 
 #### Our final experiments
 
-refine our experiments to control
-for length of summary. We do so by re-initializing training with a model that
-is fine-tuned to produce longer summaries. The goal is to create a fair "horse
-race" to compare summarization performance across the three datasets.
+In our final experiments we set `add_special_tokens=False`. This allows us to
+better control for length of summary. We do so by re-initializing training
+with a single model that is fine-tuned to produce longer summaries. The goal is to
+create a fair "horse race" to compare summarization performance across the three
+datasets. The fine-tuned model, BART18k, is the best performing
+checkpoint (at 18k steps) of the initial KG+LD training run. We choose this
+as our new starting point for the following reasons:
 
+1. As the combination of the two forms input data, it occupies the middle
+ground between LDs and KGs in terms of data structure.
 
-Once we control for length of summary, our final results are in line
-with our initial hypothesis. We summarise these results in
-[\[fig:summary-of-results-intro\]](#fig:summary-of-results-intro){reference-type="ref"
-reference="fig:summary-of-results-intro"}.
+2. Since our main hypothesis is that is that the KG+LD will outperform the
+other two, by adopting a model that is already fine-tuned on the KG+LD
+dataset (albeit without the impact of the `add_special_tokens=False`
+setting) there is more opportunity for learning on the other datasets
+(LD only and KG only). This follows because during training all example
+inputs are truncated to 16384 tokens. This is a [unlimiformer default
+setting](https://github.com/abertsch72/unlimiformer) that we inherit as part of
+our efforts to reproduce their results.
+
+3. As table 2 shows, as a distribution the summary lengths for the KG+LD initial
+run are closest to the golden summaries. 
+
+Once we control for length of summary, our final experiments
+whilst still far from perfect, generate results that are in
+line with our initial hypothesis. We summarise these results as follows.
+
+First the generated summary-length statistics. Note that the summary length is now higher
+for LDs and somewhat shorter for the other two, but the ordering is roughly what
+we would expect given the density of tokens in each type of input: KG < KG+LD <
+LD.
 
 <!-- ![Final Results Table](images/final_results_stats.png) -->
 
 Final Result Summary Token Lengths (Validation) 
 |        | Average                                        | Min  | Max  | Std Dev|
 |--------|------------------------------------------------|------|------|--------|
+| Golden | 597                                            | ???  | @sheel| ???   |
 | LD     | 943                                            | 630  | 1026 | 80     |
 | KG     | 555                                            | 364  | 824  | 66     |
 | KG+LD  | 657                                            | 476  | 1023 | 109    |
 
+To conclude, we present the corresonding performance metrics for our final
+experiments. 
 
 <!-- ![Results Table](images/results_table.png) -->
 
@@ -327,10 +355,15 @@ Final Result Summary Token Lengths (Validation)
 
 
 
-We find that the best summaries are indeed produced by the combined KG+LD
-input. This is followed by LDs and then finally KGs. There is a
-significant difference in performance between the three. All our results
-are for the validation set.
+We find that the best summaries are indeed produced by the combined
+KG+LD input. This is followed by LDs and then finally KGs. There is
+a significant difference in performance between the three. All our
+results are for the validation set. The [tau/sled/gov_report test
+set](https://huggingface.co/datasets/tau/sled/viewer/gov_report/test) does not
+contain golden summaries. Instead, the test set summaries are held out to be
+used for generations that are submitted for external evaluation in the [SCROLLS
+benchmark](https://arxiv.org/pdf/2201.03533.pdf). We look forward to submitting
+our test outputs to SCROLLS in the near future.
 
 ## Methodology 
 
