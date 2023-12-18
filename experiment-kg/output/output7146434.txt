@@ -1,0 +1,3 @@
+{'loss': 2.5602, 'learning_rate': 8.756253102684538e-06, 'epoch': 2.12}
+{'loss': 2.5354, 'learning_rate': 8.692608291645984e-06, 'epoch': 2.18}
+{'eval_rouge/rouge1': 19.8359, 'eval_rouge/rouge2': 7.6824, 'eval_rouge/rougeL': 12.4368, 'eval_rouge/rougeLsum': 18.6472, 'eval_rouge/geometric_mean': 12.3752, 'eval_num_predicted': 972, 'eval_mean_prediction_length_characters': 557.9527, 'eval_bertscore/precision': 0.6436, 'eval_bertscore/recall': 0.4916, 'eval_bertscore/f1': 0.5568, 'eval_mean_prediction_length_tokens': 127.0679, 'eval_runtime': 1057.7049, 'eval_samples_per_second': 0.919, 'eval_steps_per_second': 0.919, 'epoch': 2.18}

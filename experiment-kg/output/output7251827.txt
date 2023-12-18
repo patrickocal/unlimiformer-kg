@@ -1,0 +1,64 @@
+{'loss': 2.3513, 'learning_rate': 6.719619149450746e-06, 'epoch': 3.95}
+{'loss': 2.3547, 'learning_rate': 6.65597433841219e-06, 'epoch': 4.01}
+{'eval_rouge/rouge1': 43.6959, 'eval_rouge/rouge2': 13.3992, 'eval_rouge/rougeL': 19.1551, 'eval_rouge/rougeLsum': 41.7429, 'eval_rouge/geometric_mean': 22.3839, 'eval_num_predicted': 972, 'eval_mean_prediction_length_characters': 2759.7047, 'eval_bertscore/precision': 0.6274, 'eval_bertscore/recall': 0.591, 'eval_bertscore/f1': 0.6082, 'eval_mean_prediction_length_tokens': 567.8981, 'eval_runtime': 4387.9086, 'eval_samples_per_second': 0.222, 'eval_steps_per_second': 0.222, 'epoch': 4.01}
+{'loss': 2.3777, 'learning_rate': 6.592329527373634e-06, 'epoch': 4.07}
+{'loss': 2.3562, 'learning_rate': 6.528684716335078e-06, 'epoch': 4.12}
+{'eval_rouge/rouge1': 44.2343, 'eval_rouge/rouge2': 13.6576, 'eval_rouge/rougeL': 19.3462, 'eval_rouge/rougeLsum': 42.1678, 'eval_rouge/geometric_mean': 22.6939, 'eval_num_predicted': 972, 'eval_mean_prediction_length_characters': 2873.7274, 'eval_bertscore/precision': 0.629, 'eval_bertscore/recall': 0.5942, 'eval_bertscore/f1': 0.6106, 'eval_mean_prediction_length_tokens': 582.0412, 'eval_runtime': 4523.9821, 'eval_samples_per_second': 0.215, 'eval_steps_per_second': 0.215, 'epoch': 4.12}
+{'loss': 2.3238, 'learning_rate': 6.465039905296522e-06, 'epoch': 4.18}
+{'loss': 2.3401, 'learning_rate': 6.401395094257966e-06, 'epoch': 4.24}
+{'eval_rouge/rouge1': 44.0989, 'eval_rouge/rouge2': 13.8777, 'eval_rouge/rougeL': 19.4403, 'eval_rouge/rougeLsum': 42.0777, 'eval_rouge/geometric_mean': 22.8288, 'eval_num_predicted': 972, 'eval_mean_prediction_length_characters': 2648.7984, 'eval_bertscore/precision': 0.6335, 'eval_bertscore/recall': 0.5915, 'eval_bertscore/f1': 0.6113, 'eval_mean_prediction_length_tokens': 543.677, 'eval_runtime': 4200.4003, 'eval_samples_per_second': 0.231, 'eval_steps_per_second': 0.231, 'epoch': 4.24}
+{'loss': 2.3575, 'learning_rate': 6.337750283219409e-06, 'epoch': 4.3}
+{'loss': 2.3451, 'learning_rate': 6.2741054721808535e-06, 'epoch': 4.35}
+{'eval_rouge/rouge1': 43.6398, 'eval_rouge/rouge2': 13.5155, 'eval_rouge/rougeL': 19.3156, 'eval_rouge/rougeLsum': 41.5471, 'eval_rouge/geometric_mean': 22.5013, 'eval_num_predicted': 972, 'eval_mean_prediction_length_characters': 2664.9506, 'eval_bertscore/precision': 0.6293, 'eval_bertscore/recall': 0.59, 'eval_bertscore/f1': 0.6086, 'eval_mean_prediction_length_tokens': 552.1934, 'eval_runtime': 4217.2173, 'eval_samples_per_second': 0.23, 'eval_steps_per_second': 0.23, 'epoch': 4.35}
+{'loss': 2.3467, 'learning_rate': 6.210460661142298e-06, 'epoch': 4.41}
+{'loss': 2.3308, 'learning_rate': 6.146815850103741e-06, 'epoch': 4.47}
+{'eval_rouge/rouge1': 43.5621, 'eval_rouge/rouge2': 13.4904, 'eval_rouge/rougeL': 19.2313, 'eval_rouge/rougeLsum': 41.5192, 'eval_rouge/geometric_mean': 22.4413, 'eval_num_predicted': 972, 'eval_mean_prediction_length_characters': 2702.4578, 'eval_bertscore/precision': 0.6291, 'eval_bertscore/recall': 0.5903, 'eval_bertscore/f1': 0.6086, 'eval_mean_prediction_length_tokens': 553.215, 'eval_runtime': 4253.3075, 'eval_samples_per_second': 0.229, 'eval_steps_per_second': 0.229, 'epoch': 4.47}
+{'loss': 2.3792, 'learning_rate': 6.083171039065185e-06, 'epoch': 4.53}
+{'loss': 2.3601, 'learning_rate': 6.0195262280266294e-06, 'epoch': 4.58}
+{'eval_rouge/rouge1': 43.8878, 'eval_rouge/rouge2': 13.6623, 'eval_rouge/rougeL': 19.3214, 'eval_rouge/rougeLsum': 41.9676, 'eval_rouge/geometric_mean': 22.6274, 'eval_num_predicted': 972, 'eval_mean_prediction_length_characters': 2642.8971, 'eval_bertscore/precision': 0.6329, 'eval_bertscore/recall': 0.5907, 'eval_bertscore/f1': 0.6106, 'eval_mean_prediction_length_tokens': 540.8385, 'eval_runtime': 4095.1694, 'eval_samples_per_second': 0.237, 'eval_steps_per_second': 0.237, 'epoch': 4.58}
+{'loss': 2.3356, 'learning_rate': 5.955881416988073e-06, 'epoch': 4.64}
+{'loss': 2.3809, 'learning_rate': 5.892236605949517e-06, 'epoch': 4.7}
+{'eval_rouge/rouge1': 43.3405, 'eval_rouge/rouge2': 13.4242, 'eval_rouge/rougeL': 19.1857, 'eval_rouge/rougeLsum': 41.3635, 'eval_rouge/geometric_mean': 22.3488, 'eval_num_predicted': 972, 'eval_mean_prediction_length_characters': 2744.0442, 'eval_bertscore/precision': 0.629, 'eval_bertscore/recall': 0.5897, 'eval_bertscore/f1': 0.6082, 'eval_mean_prediction_length_tokens': 559.6811, 'eval_runtime': 4356.5251, 'eval_samples_per_second': 0.223, 'eval_steps_per_second': 0.223, 'epoch': 4.7}
+{'loss': 2.3648, 'learning_rate': 5.828591794910962e-06, 'epoch': 4.75}
+{'loss': 2.3057, 'learning_rate': 5.7649469838724045e-06, 'epoch': 4.81}
+{'eval_rouge/rouge1': 43.876, 'eval_rouge/rouge2': 13.7553, 'eval_rouge/rougeL': 19.4539, 'eval_rouge/rougeLsum': 41.8109, 'eval_rouge/geometric_mean': 22.7283, 'eval_num_predicted': 972, 'eval_mean_prediction_length_characters': 2535.3333, 'eval_bertscore/precision': 0.6335, 'eval_bertscore/recall': 0.5897, 'eval_bertscore/f1': 0.6104, 'eval_mean_prediction_length_tokens': 520.7747, 'eval_runtime': 3914.4351, 'eval_samples_per_second': 0.248, 'eval_steps_per_second': 0.248, 'epoch': 4.81}
+{'loss': 2.3625, 'learning_rate': 5.7013021728338495e-06, 'epoch': 4.87}
+{'loss': 2.3224, 'learning_rate': 5.637657361795294e-06, 'epoch': 4.93}
+{'eval_rouge/rouge1': 42.8749, 'eval_rouge/rouge2': 13.1082, 'eval_rouge/rougeL': 19.2391, 'eval_rouge/rougeLsum': 40.8768, 'eval_rouge/geometric_mean': 22.1128, 'eval_num_predicted': 972, 'eval_mean_prediction_length_characters': 2494.1955, 'eval_bertscore/precision': 0.6309, 'eval_bertscore/recall': 0.5852, 'eval_bertscore/f1': 0.6067, 'eval_mean_prediction_length_tokens': 513.5607, 'eval_runtime': 3880.0268, 'eval_samples_per_second': 0.251, 'eval_steps_per_second': 0.251, 'epoch': 4.93}
+{'loss': 2.3002, 'learning_rate': 5.574012550756738e-06, 'epoch': 4.98}
+{'loss': 2.3222, 'learning_rate': 5.510367739718181e-06, 'epoch': 5.04}
+{'eval_rouge/rouge1': 43.8292, 'eval_rouge/rouge2': 13.6356, 'eval_rouge/rougeL': 19.4054, 'eval_rouge/rougeLsum': 41.8642, 'eval_rouge/geometric_mean': 22.6353, 'eval_num_predicted': 972, 'eval_mean_prediction_length_characters': 2584.9372, 'eval_bertscore/precision': 0.633, 'eval_bertscore/recall': 0.59, 'eval_bertscore/f1': 0.6103, 'eval_mean_prediction_length_tokens': 530.7387, 'eval_runtime': 4055.1085, 'eval_samples_per_second': 0.24, 'eval_steps_per_second': 0.24, 'epoch': 5.04}
+{'loss': 2.2839, 'learning_rate': 5.446722928679625e-06, 'epoch': 5.1}
+{'loss': 2.298, 'learning_rate': 5.38307811764107e-06, 'epoch': 5.16}
+{'eval_rouge/rouge1': 44.1271, 'eval_rouge/rouge2': 13.6617, 'eval_rouge/rougeL': 19.539, 'eval_rouge/rougeLsum': 42.1597, 'eval_rouge/geometric_mean': 22.7529, 'eval_num_predicted': 972, 'eval_mean_prediction_length_characters': 2606.0051, 'eval_bertscore/precision': 0.633, 'eval_bertscore/recall': 0.5911, 'eval_bertscore/f1': 0.6109, 'eval_mean_prediction_length_tokens': 528.1039, 'eval_runtime': 3978.4019, 'eval_samples_per_second': 0.244, 'eval_steps_per_second': 0.244, 'epoch': 5.16}
+{'loss': 2.2635, 'learning_rate': 5.319433306602513e-06, 'epoch': 5.21}
+{'loss': 2.2916, 'learning_rate': 5.255788495563957e-06, 'epoch': 5.27}
+{'eval_rouge/rouge1': 44.1771, 'eval_rouge/rouge2': 13.6517, 'eval_rouge/rougeL': 19.4369, 'eval_rouge/rougeLsum': 42.1618, 'eval_rouge/geometric_mean': 22.7163, 'eval_num_predicted': 972, 'eval_mean_prediction_length_characters': 2650.7922, 'eval_bertscore/precision': 0.6334, 'eval_bertscore/recall': 0.5918, 'eval_bertscore/f1': 0.6115, 'eval_mean_prediction_length_tokens': 538.3333, 'eval_runtime': 4090.5359, 'eval_samples_per_second': 0.238, 'eval_steps_per_second': 0.238, 'epoch': 5.27}
+{'loss': 2.3026, 'learning_rate': 5.192143684525401e-06, 'epoch': 5.33}
+{'loss': 2.2845, 'learning_rate': 5.128498873486845e-06, 'epoch': 5.38}
+{'eval_rouge/rouge1': 43.9203, 'eval_rouge/rouge2': 13.6778, 'eval_rouge/rougeL': 19.4395, 'eval_rouge/rougeLsum': 41.9779, 'eval_rouge/geometric_mean': 22.6876, 'eval_num_predicted': 972, 'eval_mean_prediction_length_characters': 2559.5874, 'eval_bertscore/precision': 0.6365, 'eval_bertscore/recall': 0.5914, 'eval_bertscore/f1': 0.6127, 'eval_mean_prediction_length_tokens': 523.6749, 'eval_runtime': 3964.2684, 'eval_samples_per_second': 0.245, 'eval_steps_per_second': 0.245, 'epoch': 5.38}
+{'train_runtime': 65716.0612, 'train_samples_per_second': 2.656, 'train_steps_per_second': 1.328, 'train_loss': 0.6451236909906914, 'epoch': 5.38}
+***** train metrics *****
+  epoch                    =        5.38
+  train_loss               =      0.6451
+  train_runtime            = 18:15:16.06
+  train_samples            =       17457
+  train_samples_per_second =       2.656
+  train_steps_per_second   =       1.328
+***** eval metrics *****
+  epoch                                  =       5.38
+  eval_bertscore/f1                      =     0.6113
+  eval_bertscore/precision               =     0.6335
+  eval_bertscore/recall                  =     0.5915
+  eval_mean_prediction_length_characters =  2648.7984
+  eval_mean_prediction_length_tokens     =    543.677
+  eval_num_predicted                     =        972
+  eval_rouge/geometric_mean              =    22.8288
+  eval_rouge/rouge1                      =    44.0989
+  eval_rouge/rouge2                      =    13.8777
+  eval_rouge/rougeL                      =    19.4403
+  eval_rouge/rougeLsum                   =    42.0777
+  eval_runtime                           = 1:10:10.72
+  eval_samples                           =        972
+  eval_samples_per_second                =      0.231
+  eval_steps_per_second                  =      0.231

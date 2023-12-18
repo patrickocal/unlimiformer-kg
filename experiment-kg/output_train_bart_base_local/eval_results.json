@@ -1,0 +1,18 @@
+{
+    "epoch": 5.38,
+    "eval_bertscore/f1": 0.6113,
+    "eval_bertscore/precision": 0.6335,
+    "eval_bertscore/recall": 0.5915,
+    "eval_mean_prediction_length_characters": 2648.7984,
+    "eval_mean_prediction_length_tokens": 543.677,
+    "eval_num_predicted": 972,
+    "eval_rouge/geometric_mean": 22.8288,
+    "eval_rouge/rouge1": 44.0989,
+    "eval_rouge/rouge2": 13.8777,
+    "eval_rouge/rougeL": 19.4403,
+    "eval_rouge/rougeLsum": 42.0777,
+    "eval_runtime": 4210.7215,
+    "eval_samples": 972,
+    "eval_samples_per_second": 0.231,
+    "eval_steps_per_second": 0.231
+}

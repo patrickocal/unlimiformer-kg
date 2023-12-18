@@ -1,0 +1,69 @@
+srun: ROUTE: split_hostlist: hl=bun078 tree_width 0
+/home/uqpocall/micromamba/envs/unlimiformer11/lib/python3.10/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+WARNING:sled:Process rank: 0, device: cuda:0, n_gpu: 1distributed training: True, 16-bits training: False
+wandb: Currently logged in as: patocal (unlimiformer-kg). Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.16.1
+wandb: Run data is saved locally in /scratch/project_mnt/S0066/unlimiformer-08-dec-comb-then-kg/wandb/run-20231216_230614-5ljo8jmy
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run output_train_bart_base_local/
+wandb: ⭐️ View project at https://wandb.ai/unlimiformer-kg/unlimiformer-08-dec-comb-then-kg-src
+wandb: 🚀 View run at https://wandb.ai/unlimiformer-kg/unlimiformer-08-dec-comb-then-kg-src/runs/5ljo8jmy
+/scratch/project_mnt/S0066/unlimiformer-08-dec-comb-then-kg/src/metrics/metrics.py:141: FutureWarning: load_metric is deprecated and will be removed in the next major version of datasets. Use 'evaluate.load' instead, from the new library 🤗 Evaluate: https://huggingface.co/docs/evaluate
+  self._metric = hf_load_metric(download_metric(), comma_separated_metric_names, keep_in_memory=True)
+/home/uqpocall/micromamba/envs/unlimiformer11/lib/python3.10/site-packages/datasets/load.py:2089: FutureWarning: 'use_auth_token' was deprecated in favor of 'token' in version 2.14.0 and will be removed in 3.0.0.
+You can remove this warning by passing 'token=False' instead.
+  warnings.warn(
+/home/uqpocall/micromamba/envs/unlimiformer11/lib/python3.10/site-packages/datasets/load.py:2097: FutureWarning: 'ignore_verifications' was deprecated in favor of 'verification_mode' in version 2.9.1 and will be removed in 3.0.0.
+You can remove this warning by passing 'verification_mode=no_checks' instead.
+  warnings.warn(
+Downloading data files:   0%|          | 0/3 [00:00<?, ?it/s]
+Downloading data:   0%|          | 0.00/57.3M [00:00<?, ?B/s][A
+Downloading data:   7%|▋         | 4.19M/57.3M [00:01<00:14, 3.66MB/s][A
+Downloading data:  22%|██▏       | 12.6M/57.3M [00:02<00:07, 5.64MB/s][A
+Downloading data:  37%|███▋      | 21.0M/57.3M [00:03<00:06, 5.84MB/s][A
+Downloading data:  51%|█████▏    | 29.4M/57.3M [00:05<00:05, 5.39MB/s][A
+Downloading data:  66%|██████▌   | 37.7M/57.3M [00:06<00:03, 5.61MB/s][A
+Downloading data:  81%|████████  | 46.1M/57.3M [00:07<00:01, 6.76MB/s][A
+Downloading data:  95%|█████████▌| 54.5M/57.3M [00:08<00:00, 6.93MB/s][ADownloading data: 100%|██████████| 57.3M/57.3M [00:08<00:00, 6.53MB/s]
+Downloading data files:  33%|███▎      | 1/3 [00:08<00:17,  8.78s/it]
+Downloading data:   0%|          | 0.00/3.38M [00:00<?, ?B/s][A
+Downloading data: 100%|██████████| 3.38M/3.38M [00:00<00:00, 4.20MB/s][ADownloading data: 100%|██████████| 3.38M/3.38M [00:00<00:00, 4.19MB/s]
+Downloading data files:  67%|██████▋   | 2/3 [00:09<00:04,  4.09s/it]
+Downloading data:   0%|          | 0.00/2.05M [00:00<?, ?B/s][A
+Downloading data: 100%|██████████| 2.05M/2.05M [00:00<00:00, 3.35MB/s][ADownloading data: 100%|██████████| 2.05M/2.05M [00:00<00:00, 3.34MB/s]
+Downloading data files: 100%|██████████| 3/3 [00:10<00:00,  2.50s/it]Downloading data files: 100%|██████████| 3/3 [00:10<00:00,  3.40s/it]
+Extracting data files:   0%|          | 0/3 [00:00<?, ?it/s]Extracting data files:  33%|███▎      | 1/3 [00:00<00:01,  1.27it/s]Extracting data files: 100%|██████████| 3/3 [00:00<00:00,  3.43it/s]
+Generating train split: 0 examples [00:00, ? examples/s]Generating train split: 2548 examples [00:00, 18205.44 examples/s]Generating train split: 5089 examples [00:00, 20391.57 examples/s]Generating train split: 7634 examples [00:00, 21814.28 examples/s]Generating train split: 10184 examples [00:00, 22575.40 examples/s]Generating train split: 13413 examples [00:00, 23692.41 examples/s]Generating train split: 17270 examples [00:00, 24288.76 examples/s]Generating train split: 17457 examples [00:00, 23010.89 examples/s]
+Generating validation split: 0 examples [00:00, ? examples/s]Generating validation split: 972 examples [00:00, 21807.71 examples/s]
+Generating test split: 0 examples [00:00, ? examples/s]Generating test split: 973 examples [00:00, 16585.28 examples/s]
+/home/uqpocall/micromamba/envs/unlimiformer11/lib/python3.10/site-packages/transformers/models/auto/configuration_auto.py:1020: FutureWarning: The `use_auth_token` argument is deprecated and will be removed in v5 of Transformers.
+  warnings.warn(
+/home/uqpocall/micromamba/envs/unlimiformer11/lib/python3.10/site-packages/transformers/models/auto/tokenization_auto.py:655: FutureWarning: The `use_auth_token` argument is deprecated and will be removed in v5 of Transformers.
+  warnings.warn(
+/home/uqpocall/micromamba/envs/unlimiformer11/lib/python3.10/site-packages/transformers/models/auto/auto_factory.py:472: FutureWarning: The `use_auth_token` argument is deprecated and will be removed in v5 of Transformers.
+  warnings.warn(
+/home/uqpocall/micromamba/envs/unlimiformer11/lib/python3.10/site-packages/transformers/utils/hub.py:374: FutureWarning: The `use_auth_token` argument is deprecated and will be removed in v5 of Transformers.
+  warnings.warn(
+WARNING:sled:Cannot use cache in models when using gradient checkpointing. turning it off
+Running tokenizer on train dataset:   0%|          | 0/17457 [00:00<?, ? examples/s]/home/uqpocall/micromamba/envs/unlimiformer11/lib/python3.10/site-packages/transformers/tokenization_utils_base.py:3848: UserWarning: `as_target_tokenizer` is deprecated and will be removed in v5 of Transformers. You can tokenize your labels by using the argument `text_target` of the regular `__call__` method (either in the same call as your input texts if you use the same keyword arguments, or in a separate call.
+  warnings.warn(
+Running tokenizer on train dataset:   6%|▌         | 1000/17457 [00:05<01:26, 190.54 examples/s]Running tokenizer on train dataset:  11%|█▏        | 2000/17457 [00:10<01:18, 195.70 examples/s]Running tokenizer on train dataset:  17%|█▋        | 3000/17457 [00:15<01:13, 197.39 examples/s]Running tokenizer on train dataset:  23%|██▎       | 4000/17457 [00:20<01:07, 198.90 examples/s]Running tokenizer on train dataset:  29%|██▊       | 5000/17457 [00:25<01:02, 198.99 examples/s]Running tokenizer on train dataset:  34%|███▍      | 6000/17457 [00:30<00:58, 194.63 examples/s]Running tokenizer on train dataset:  40%|████      | 7000/17457 [00:35<00:53, 195.63 examples/s]Running tokenizer on train dataset:  46%|████▌     | 8000/17457 [00:40<00:47, 197.33 examples/s]Running tokenizer on train dataset:  52%|█████▏    | 9000/17457 [00:45<00:42, 200.20 examples/s]Running tokenizer on train dataset:  57%|█████▋    | 10000/17457 [00:50<00:36, 201.63 examples/s]Running tokenizer on train dataset:  63%|██████▎   | 11000/17457 [00:55<00:32, 201.74 examples/s]Running tokenizer on train dataset:  69%|██████▊   | 12000/17457 [01:00<00:26, 203.18 examples/s]Running tokenizer on train dataset:  74%|███████▍  | 13000/17457 [01:05<00:22, 201.86 examples/s]Running tokenizer on train dataset:  80%|████████  | 14000/17457 [01:10<00:16, 203.46 examples/s]Running tokenizer on train dataset:  86%|████████▌ | 15000/17457 [01:15<00:12, 202.35 examples/s]Running tokenizer on train dataset:  92%|█████████▏| 16000/17457 [01:19<00:07, 203.00 examples/s]Running tokenizer on train dataset:  97%|█████████▋| 17000/17457 [01:24<00:02, 201.62 examples/s]Running tokenizer on train dataset: 100%|██████████| 17457/17457 [01:27<00:00, 202.95 examples/s]Running tokenizer on train dataset: 100%|██████████| 17457/17457 [01:27<00:00, 200.27 examples/s]
+Flattening the indices:   0%|          | 0/972 [00:00<?, ? examples/s]Flattening the indices: 100%|██████████| 972/972 [00:00<00:00, 11651.51 examples/s]
+Running tokenizer on validation dataset:   0%|          | 0/972 [00:00<?, ? examples/s]Running tokenizer on validation dataset: 100%|██████████| 972/972 [00:03<00:00, 254.81 examples/s]Running tokenizer on validation dataset: 100%|██████████| 972/972 [00:03<00:00, 253.40 examples/s]
+WARNING:accelerate.utils.other:Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+Traceback (most recent call last):
+  File "/scratch/project_mnt/S0066/unlimiformer-08-dec-comb-then-kg/src/run.py", line 1190, in <module>
+    main()
+  File "/scratch/project_mnt/S0066/unlimiformer-08-dec-comb-then-kg/src/run.py", line 802, in main
+    train_result = trainer.train(resume_from_checkpoint=checkpoint)
+  File "/home/uqpocall/micromamba/envs/unlimiformer11/lib/python3.10/site-packages/transformers/trainer.py", line 1567, in train
+    self._load_from_checkpoint(resume_from_checkpoint)
+  File "/home/uqpocall/micromamba/envs/unlimiformer11/lib/python3.10/site-packages/transformers/trainer.py", line 2121, in _load_from_checkpoint
+    raise ValueError(f"Can't find a valid checkpoint at {resume_from_checkpoint}")
+ValueError: Can't find a valid checkpoint at output_train_bart_base_local/checkpoint-18000/
+wandb: 🚀 View run output_train_bart_base_local/ at: https://wandb.ai/unlimiformer-kg/unlimiformer-08-dec-comb-then-kg-src/runs/5ljo8jmy
+wandb: ️⚡ View job at https://wandb.ai/unlimiformer-kg/unlimiformer-08-dec-comb-then-kg-src/jobs/QXJ0aWZhY3RDb2xsZWN0aW9uOjEyMjk1MzkzNw==/version_details/v1
+wandb: Synced 6 W&B file(s), 0 media file(s), 2 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20231216_230614-5ljo8jmy/logs
+srun: error: bun078: task 0: Exited with exit code 1

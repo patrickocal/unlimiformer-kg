@@ -1,0 +1,14 @@
+srun: ROUTE: split_hostlist: hl=bun077 tree_width 0
+/home/uqpocall/.local/lib/python3.10/site-packages/scipy/__init__.py:146: UserWarning: A NumPy version >=1.17.3 and <1.25.0 is required for this version of SciPy (detected version 1.26.2
+  warnings.warn(f"A NumPy version >={np_minversion} and <{np_maxversion}"
+/home/uqpocall/micromamba/envs/unlimiformer11/lib/python3.10/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+Traceback (most recent call last):
+  File "/scratch/project_mnt/S0066/unlimiformer-08-dec-comb/src/run.py", line 1181, in <module>
+    main()
+  File "/scratch/project_mnt/S0066/unlimiformer-08-dec-comb/src/run.py", line 403, in main
+    model_args, data_args, training_args, unlimiformer_args = parser.parse_dictionary_and_args()
+  File "/scratch/project_mnt/S0066/unlimiformer-08-dec-comb/src/utils/custom_hf_argument_parser.py", line 22, in parse_dictionary_and_args
+    with open(sys.argv[i]) as f:
+FileNotFoundError: [Errno 2] No such file or directory: 'src/configs/data/gov_report_.json'
+srun: error: bun077: task 0: Exited with exit code 1
