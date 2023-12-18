@@ -1,0 +1,14 @@
+{
+  "dataset_name": "patrickocal/gov_report_kg",
+  "dataset_config_name": "gov_report_kg_comb",
+  "max_source_length": 16384,
+  "generation_max_length": 1024,
+  "max_prefix_length": 0,
+  "pad_prefix": false,
+  "num_train_epochs": 10,
+  "metric_names": ["rouge"],
+  "metric_for_best_model": "rouge/geometric_mean",
+  "greater_is_better": true,
+  "input_column": "input",
+  "output_column": "output"
+}
