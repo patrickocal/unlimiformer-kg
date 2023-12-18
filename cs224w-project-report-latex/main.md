@@ -76,7 +76,7 @@ relations)*:
 
 \<photo\>
 
-The cast of characters is a form of knowledge graph that is, a collection of
+The cast of characters is a form of knowledge graph: a collection of
 relations connecting pairs of entities. Its structured form provides an aid to
 reading for humans and it seems reasonable that it might also be useful for
 large language models.
@@ -173,28 +173,19 @@ of the KG and LD.
 [graph here]
 [table]
 
-[comment]: # (| Dataset | Average (# tokens                 | Min             | Max                      | Std Dev         |
-|-------|-------------------------|-----------------|--------------------------|------------------------------|
+| Dataset | Average (# input tokens)                 | Min             | Max         |                 Std Dev| 
+|-------|-------------------------|-----------------|--------------------------------|------------------------|
 | LD    | 9,617 / 10,044 / 9,209     | 74 / 237 / 561  | 303,192 / 69,300 / 38,735   | 7,644 / 7,106 / 5,446  |
 | KG    | 2,820 / 2,902 / 2,766      | 121 / 401 / 223 | 63,988 / 13,049 / 12,728    | 2,013 / 1,782 / 1,625  |
-| KG+LD | 13,203 / 13,854 / 12,829   | 487 / 1,541 / 825 | 313,947 / 77,692 / 58,815  | 9,753 / 9,065 / 7,525 |
-| | | |
-| KG+LD | 13,203 / 13,854 / 12,829   | 487 / 1,541 / 825 | 313,947 / 77,692 / 58,815 |
-)
-
-| Dataset | Average (# input tokens)                 | Min             | Max        |
-|-------|-------------------------|-----------------|--------------------------|
-| LD    | 9,617 / 10,044 / 9,209     | 74 / 237 / 561  | 303,192 / 69,300 / 38,735   |
-| KG    | 2,820 / 2,902 / 2,766      | 121 / 401 / 223 | 63,988 / 13,049 / 12,728    |
 
 [caption]
 Table 1: Input token lengths (train / talidation / test): we see that
 the largest LD is over 300k tokens long and it generates a KG of almost 64k
-tokens. The summary statistics for KG+LD dataset is essentially the sum.
+tokens. The summary statistics for the KG+LD dataset is essentially the sum.
 [caption]
 
 
-[comment]: # ( ### Training a large language model
+[comment]: # ( 
 [rewrite]
 Augmenting large language models (LLMs to handle long documents using
 retrieval-based methods is a highly active area of research.
@@ -210,20 +201,122 @@ is 4,096 tokens, while the average novel contains well over 100,000 tokens.
 Proprietory models such as GPT-4 and Claude provide users with models that
 extend beyond 100,000 tokens, but the question remains: what is the best way to
 achieve this?
-
 )
+
+#### Summarizing long documents
+
+Summarization is a long-established challenge in the field of language
+modelling. It involves condensing and distilling key information of a long text
+into a short one. Traditional approaches relied on extractive summarization,
+where key sentences are selected and combined from the original text. However,
+with the advent of advanced neural network models, abstractive summarization,
+which involves generating new sentences that capture the essence of the source
+content, has gained prominence.
+
+An LD is a document that is longer than the context window of attention of a
+given language model. So for our benchmark Facebook/bart-base (BART) model, the
+context window is 1024 tokens. Since our GovReport dataset consists of
+documents that are 9-10k tokens on average (with many that are over 50k), BART
+is an appropriate for our research question.
+
+When documents are longer than the context window, either the document is
+truncated and the summary is based on the initial segment of text, or the
+language model is augmented. There are two approaches to augmenting
+transformers.
+
+1. The most obvious augmentation is to divide the
+text into overlapping chunks and proceed by sequentially summarizing each
+chunk. Once a first pass is complete, then the process is repeated by
+concatenating the chunk summaries and then summarizing those. The process is
+repeated until a single summary is produced.
+
+**Remark** Note that KG extraction (from LDs) is
+in fact an example of this approach. As our [colab
+code](https://colab.research.google.com/drive/1WImeVXJgn_7wIIggJc_g6CK25XGYR9wv#scrollTo=XgzEjsYevftq)
+shows, the document is fed into the model chunk-by-chunk and (in our case 3)
+relations are extracted per chunk of 128 tokens. In the case of the REBEL
+model we adopt, identifying a single relation triplet involves identifying two
+entities and then partially abstracting to identify the nature of the relation.
+The key difference is in the nature of the output. Summaries are free-flowing
+whereas KGs are purely structural.
+
+2. More recently models like Unlimiformer address augment language models by
+placing "hooks' inside the transformer's architecture that provide access to
+the hidden encodings of tokens. These hidden encodings are then stored: either
+in memory (during training) or in datastores (during inference). In the case
+of Unlimiformer, once stored these encodings are searched using and use the
+$k$-nearest neighbors ($k$-NN) algorithm to select the $k$ most relevant tokens
+to pass to the attention mechanism during decoding. The following diagram
+depicts the workflow.
+
+[image of workflow diagram here]
+
+The main attractions of Unlimiformer as follows: 
+- The capacity of Unlimiformer is essentially only bounded by the hardware that
+is available.
+- The framework introduces no new parameters to the language model. This means
+that it has the capacity to augment a wide variety of (publicly available) language
+models with only minor modifications.
+
+In light of the above, our approach is a hybrid of the two forms of
+augmentation. Indeed a more streamlined version of the present work would
+generate KGs at inference time and in an integrated manner (within the
+Unlimiformer framework) as an interim process. Instead our generation of KGs is
+external to Unlimiformer and distinct from the process of generating summaries.
+We look forward to working on this in the future.
+
+
+#### Training a large language model
+
+Inference involves passing a single example document (i.e. a single sting) to
+the model for summarization. With Unlimiformer, the length of this document
+is bounded only by the hardware available. Indeed, during evaluation,
+the default Unlimiformer upper bound is a million tokens. Training is
+another matter: even for an L40 Cuda graphics processing unit (GPU) (with
+44 gigabytes of memory) anything higher than a batch size of 2 yields
+out-of-memory errors during training on LDs. Moreover, all the documents in the
+training set are truncated to 16384 tokens. This is a [unlimiformer default
+setting](https://github.com/abertsch72/unlimiformer) that we inherit as part of
+our efforts to reproduce their results.
+
+We take full advantage of the University of Queensland Bunya cluster in our
+training. Each training run occupies a single GPU for over twelve hours. In
+many cases, experiments run for more than 48 hours. We encounter numerous
+obstacles such as reaching hard-drive capacity during runs. Checkpointing is
+essential to overcoming these obstacles as it allows us to restart training
+from the latest or best previous evaluation step.
+
+In our setting, training equates to fine tuning the existing parameters of the
+BART model. The fine-tuning process adapts the weights and biases of the model
+so that the hidden encodings are more suitable representations of the text
+given the task. We do not modify the `CustomTrainer` class of the Unlimiformer
+codebase. Indeed this class adopts the standard cross-entropy loss function. In
+the context of document summarization, a stylized version of the cross-entropy
+loss function can be mathematically expressed as follows:
+
+[photo of x-entropy latex code]
+
+_where L is the loss function; T is the length of the target sequence (not the
+golden summary, but the one that is being decoded i.e. generated); y-subscript-t
+is the word/token at position t in the target sequence and the probability is
+conditioned on the vector of tokens in the target sequence before position t and
+the model parameters theta._
+
+For summarization, each word in the summary belongs to the vocabulary, and the
+model is trained to minimize this loss over the training dataset.
+
+[training/loss figure here]
 
 #### Our initial experiments 
 
 Our experiments focus on comparing the summary outputs across the three
 datasets: the original GovReports, the GovReportsKG and the GovReportsKG+LD. Our
 initial findings reveal significant differences between the summaries generated
-from LDs and the two new datasets. The main issue is that default
-facebook/bart-base (BART) model
+from LDs and the two new datasets. The main issue is that BART
 produces summaries of approximately 130 tokens with a typical range of 100 to
 and 150 tokens for a standard sequence, but significantly longer summaries for a
 sequence of sequences: which is the format of our KGs. Thus, the KGs and KG+LDs
-generate summaries of over 700 tokens The target/golden summaries for GovReport
+generate summaries of over 700 tokens The golden summaries for GovReport
 are closer to the latter with the number of tokens being 600 on average with a
 typical range of between 400 and 1000.
 
@@ -231,7 +324,7 @@ typical range of between 400 and 1000.
 [table]
 | Source of output | Average (# tokens)| Min | Max | Std Dev |
 |------------------|-----------|-----|---------|--------|
-| Golden           | 597       | ??? | @sheel  | ???    |
+| Golden (validation)| 597     | 68 | 1884  | 189   |
 | BART: LD         | 128       | 86  | 130     | 2      |
 | BART: KG         | 737       | 494 | 1,022   | 65     |
 | BART: KG+LD      | 755       | 500 | 916     | 52     |
@@ -315,9 +408,7 @@ other two, by adopting a model that is already fine-tuned on the KG+LD
 dataset (albeit without the impact of the `add_special_tokens=False`
 setting) there is more opportunity for learning on the other datasets
 (LD only and KG only). This follows because during training all example
-inputs are truncated to 16384 tokens. This is a [unlimiformer default
-setting](https://github.com/abertsch72/unlimiformer) that we inherit as part of
-our efforts to reproduce their results.
+inputs are truncated to 16384 tokens during training.
 
 3. As table 2 shows, as a distribution the summary lengths for the KG+LD initial
 run are closest to the golden summaries. 
@@ -346,12 +437,12 @@ experiments.
 
 <!-- ![Results Table](images/results_table.png) -->
 
-| Base Model     | Input Type | ROUGE 1/2/L/GeoMean       | BERTScore F1 |
-|----------------|------------|---------------------------|--------------|
-| BARTbase       | LD (Test Set) | 56.6 / 26.3 / 27.6 / ----    | 0.682        |
-| BARTbase+18k   | LD            | 50.1 / 20.9 / 21.5 / 28.2    | 0.639        |
-| BARTbase+18k   | KG            | 44.0 / 13.8 / 19.5 / 22.8     | 0.609        |
-| BARTbase+18k   | KG+LD         | 53.2 / 22.5 / 23.6 / 30.5     | 0.655        |
+| BART+Unlimiformer final | ROUGE 1/2/L/GeoMean       | BERTScore F1 |
+|-------------------------|---------------------------|--------------------|--------------|
+| LD (benchmark [unlimiformer table 4](https://arxiv.org/pdf/2305.01625.pdf) on test set) | 56.6 / 26.3 / 27.6 / ----    | 0.682        |
+| LD (best performance during training)  | 50.1 / 20.9 / 21.5 / 28.2    | 0.639        |
+| KG (best performance during training)            | 44.0 / 13.8 / 19.5 / 22.8     | 0.609        |
+| KG+LD (best performance during training)         | 53.2 / 22.5 / 23.6 / 30.5     | 0.655        |
 
 
 
@@ -365,9 +456,9 @@ used for generations that are submitted for external evaluation in the [SCROLLS
 benchmark](https://arxiv.org/pdf/2201.03533.pdf). We look forward to submitting
 our test outputs to SCROLLS in the near future.
 
-## Methodology 
+The rest of this blog provides more detail on specific parts of our work.
 
-We use
+## Methodology 
 
 We compare and contrast the LD summaries generated by 3
 transformer-based LLM models. Firstly, we train the facebook/BART base
@@ -441,6 +532,8 @@ a sample image of a knowledge graph produced from a gold summary.
 
 
 #### BART-specific Knowledge Graph representation
+
+
 We chose to use the beginning of sequence (BOS, '\<s\>') and end of
 sequence (EOS, '\</s\>') tokens to separate triples in our knowledge
 graphs (KGs) with the intent of aligning with BART's understanding of
@@ -491,12 +584,6 @@ $19.5$k document-summary pairs.
 
 ### Unlimiformer 
 
-Unlimiformer is a recent retrieval-based method for augmenting LLMs at the
-decoder level, it is the first long-range transformer to support unlimited
-length inputs. The key innovation of unlimiformer is to create a datastore of
-encodings one for each token in the original document and use the $k$-nearest
-neighbors ($k$-NN) algorithm to select the $k$ most relevant tokens in the
-datastore during decoding.
 
 To bypass the constraint of limited window of attention, `unlimiformer` changes
 the contents of the context window. That is, instead of passing the next chunk
