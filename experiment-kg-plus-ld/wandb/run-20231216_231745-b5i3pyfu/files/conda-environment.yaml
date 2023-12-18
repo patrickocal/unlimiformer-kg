@@ -1,0 +1,5 @@
+name: unlimiformer11
+channels:
+  - defaults
+  - conda-forge
+prefix: /home/uqpocall/.conda/envs/unlimiformer11

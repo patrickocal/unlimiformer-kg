@@ -1,0 +1,15 @@
+pytorch
+accelerate
+sentencepiece
+protobuf<=3.20.1
+nltk
+datasets>=1.17.0
+absl-py
+rouge-score
+pandas
+transformers[torch]=4.34.1
+wandb
+makefun>=1.14.0
+faiss
+bert_score
+
